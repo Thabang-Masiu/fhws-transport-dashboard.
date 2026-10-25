@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import math
-from datetime import datetime, date
 
 # ============================================================
 # Page config
@@ -23,34 +22,36 @@ def load_data():
     return trips, costs
 
 trips, costs = load_data()
+
+# Compute derived columns
 trips["month"] = trips["date"].dt.to_period("M").astype(str)
 trips["weekday"] = trips["date"].dt.day_name()
-
-if "private_bookings" not in st.session_state:
-    st.session_state.private_bookings = pd.DataFrame()
 
 # ============================================================
 # Header
 # ============================================================
-st.title("🚌 FHWS Transport Management System")
-st.caption("Faculty of Health and Wellness Sciences · Secure Operations Hub")
+st.title("🚌 FHWS Student Transport Dashboard")
+st.caption("Faculty of Health and Wellness Sciences · CPUT")
 
 # ============================================================
 # Tabs
 # ============================================================
-tab_overview, tab_analysis, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking = st.tabs(
-    ["📊 Overview", "📈 Visual Analysis", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "🔒 Secure Booking"]
+tab_overview, tab_analysis, tab_consolidation, tab_costs, tab_nursing = st.tabs(
+    ["📊 Overview", "📈 Visual Analysis", "🎯 Consolidation", "💰 Costs", "🏥 Departmental Routes"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
 with tab_overview:
     st.subheader("Transport Activity Overview")
+    
+    # KPIs
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Trips", f"{len(trips):,}")
     c2.metric("Students Transported", f"{int(trips['num_students'].sum()):,}")
     c3.metric("Unique Sites", f"{trips['site'].nunique()}")
     c4.metric("Avg Students/Trip", f"{trips['num_students'].mean():.2f}")
     
+    st.markdown("### Trips per Month by Department")
     monthly = trips.groupby(["month", "department"], as_index=False).agg(trips=("date", "count"))
     st.bar_chart(monthly.pivot(index="month", columns="department", values="trips").fillna(0))
 
@@ -86,180 +87,61 @@ with tab_analysis:
     top_routes = costs_clean.groupby("route_description")["total_cost"].sum().nlargest(10).reset_index()
     st.bar_chart(top_routes.set_index("route_description")["total_cost"])
 
-    st.markdown("---")
-
-    # 4. Route Consolidation Matrix (Simplified visual)
-    st.markdown("### 4. Route Consolidation Matrix")
-    st.markdown("Visualizing the worst-case days where multiple buses were sent to the same hospital, versus the optimized reality.")
-    duplicates = trips.groupby(["date", "site"], as_index=False).agg(
-        trips=("num_students", "count")
-    ).query("trips > 1")
-    top_targets = duplicates.groupby("site", as_index=False).agg(
-        excess_trips=("trips", lambda x: (x - 1).sum())
-    ).sort_values("excess_trips", ascending=False).head(5)
-    
-    # Display as a bar chart showing excess trips
-    st.bar_chart(top_targets.set_index("site")["excess_trips"])
-
 # ---------------- TAB 3: CONSOLIDATION ----------------
 with tab_consolidation:
     st.subheader("🎯 Route Consolidation Opportunities")
+    st.markdown("By grouping trips by date and site, we identified days where multiple separate vehicles were dispatched to the exact same destination.")
+    
     duplicates = trips.groupby(["date", "site"], as_index=False).agg(
         trips=("num_students", "count"), total_students=("num_students", "sum")
     ).query("trips > 1").sort_values(["trips", "total_students"], ascending=False)
+    
     credible = costs[costs["cost_per_unit"] >= 100]
     median_cost = credible["cost_per_unit"].median() if not credible.empty else 1200
     excess_trips = max(duplicates["trips"].sum() - len(duplicates), 0)
+    saving = excess_trips * median_cost
     
+    # KPIs
     c1, c2, c3 = st.columns(3)
     c1.metric("Days with Duplication", f"{len(duplicates):,}")
     c2.metric("Excess Trips", f"{int(excess_trips):,}")
-    c3.metric("Est. Annual Saving", f"R {excess_trips * median_cost:,.0f}")
+    c3.metric("Est. Annual Saving", f"R {saving:,.0f}")
 
-    st.markdown("### Financial Impact (Waterfall)")
-    st.markdown(f"By eliminating the {excess_trips} excess trips at R {median_cost:,.0f} each, we unlock massive savings.")
-    
-    # Simulated waterfall data for the bar chart
-    waterfall_data = pd.DataFrame({
-        "Category": ["Current Cost", "Savings", "Optimized Cost"],
-        "Amount": [(excess_trips + len(duplicates)) * median_cost, -(excess_trips * median_cost), len(duplicates) * median_cost]
-    }).set_index("Category")
-    st.bar_chart(waterfall_data)
+    st.markdown("### Top Consolidation Targets")
+    targets = duplicates.groupby("site", as_index=False).agg(
+        duplicate_days=("date", "count"),
+        excess_trips=("trips", lambda x: (x - 1).sum()),
+    ).sort_values("excess_trips", ascending=False).head(10)
+    targets["potential_saving_R"] = targets["excess_trips"] * median_cost
+    st.dataframe(targets, use_container_width=True)
 
 # ---------------- TAB 4: COSTS ----------------
 with tab_costs:
     st.subheader("💰 Cost Breakdown (AY2024)")
     costs_clean = costs.dropna(subset=["cost_per_unit", "total_cost"])
     by_dept = costs_clean.groupby("department")["total_cost"].sum()
+    
+    st.markdown("### Total Cost by Department")
     st.bar_chart(by_dept)
 
-# ---------------- TAB 5: BUS UTILIZATION ----------------
-with tab_bus:
-    st.subheader("🚐 Bus Utilization Details")
-    student_load = trips.groupby(["date", "site"], as_index=False).agg(students=("num_students", "sum"))
-    c1, c2 = st.columns(2)
-    c1.metric("Avg Students/Trip", f"{trips['num_students'].mean():.2f}")
-    c2.metric("Day+Sites with ≤5 Students", f"{(student_load['students'] <= 5).sum()}")
-    st.info("Consider replacing 13-seaters and 22-seaters with 7-seaters on days with low student volume to save costs.")
-
-# ---------------- TAB 6: NURSING ----------------
+# ---------------- TAB 5: DEPARTMENTAL ROUTES ----------------
 with tab_nursing:
-    st.subheader("🏥 Nursing Department: Cluster Routes")
+    st.subheader("🏥 Departmental Routes & Fleet")
+    st.markdown("A breakdown of the specific buses assigned to the Nursing cluster routes.")
+    
     nursing_data = costs[costs["department"] == "Nursing"].copy()
+    
     if not nursing_data.empty:
+        st.markdown("### Bus Size Utilization")
         bus_counts = nursing_data["bus_size"].value_counts().reset_index()
+        bus_counts.columns = ["Bus Size", "Number of Routes"]
         st.dataframe(bus_counts, use_container_width=True)
-
-# ---------------- TAB 7: AUTO-PLANNER ----------------
-with tab_simulator:
-    st.subheader("🤖 Auto-Generate Transport Dispatch Plan")
-    
-    st.markdown("### 1. Enter Student Numbers")
-    col1, col2, col3 = st.columns(3)
-    dems_students = col1.number_input("DEMS Students", min_value=0, value=10)
-    mits_students = col2.number_input("MITS Students", min_value=0, value=5)
-    nursing_students = col3.number_input("Nursing Students", min_value=0, value=8)
-    total_students = dems_students + mits_students + nursing_students
-
-    st.markdown("### 2. Set Custom Departure & Return Times")
-    t_col1, t_col2 = st.columns(2)
-    custom_pickup = t_col1.text_input("Pickup Time", "06:30")
-    custom_return = t_col2.text_input("Return Time", "16:00")
-
-    st.markdown("### 3. Select Clinical Sites")
-    all_sites = sorted(trips["site"].dropna().unique().tolist())
-    selected_sites = st.multiselect("Select Sites:", options=all_sites, default=[all_sites[0]] if all_sites else [])
-    
-    if selected_sites and total_students > 0:
-        optimized_buses_22 = total_students // 22
-        remainder = total_students % 22
-        optimized_buses_13 = math.ceil(remainder / 13) if remainder > 0 else 0
-        total_optimized_buses = optimized_buses_22 + optimized_buses_13
         
-        plan_data = []
-        students_per_site = math.ceil(total_students / len(selected_sites))
-        
-        for site in selected_sites:
-            plan_data.append({
-                "Destination": site, 
-                "Pickup Time": custom_pickup, 
-                "Return Time": custom_return, 
-                "Est. Students": students_per_site
-            })
-            
-        dispatch_df = pd.DataFrame(plan_data)
-        
-        st.markdown("---")
-        st.success(f"✅ **Plan Generated!** {total_students} students require **{total_optimized_buses} buses**.")
-        st.dataframe(dispatch_df, use_container_width=True)
-        
-        csv = dispatch_df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Dispatch Sheet", csv, "Dispatch_Plan.csv", "text/csv")
-
-# ---------------- TAB 8: SECURE BOOKING ----------------
-with tab_booking:
-    st.subheader("🔒 Secure Booking Engine")
-    
-    with st.form("booking_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            book_date = st.date_input("Date of Travel", min_value=date.today())
-            book_dept = st.selectbox("Department", ["DEMS", "MITS", "Nursing"])
-            book_site = st.selectbox("Hospital/Clinic", options=sorted(trips["site"].dropna().unique().tolist()))
-        with col2:
-            book_students = st.number_input("Number of Students", min_value=1, value=5)
-            book_pickup = st.text_input("Pickup Time", "06:30")
-            book_return = st.text_input("Return Time", "16:00")
-            
-        submitted = st.form_submit_button("Check Availability & Book")
-        
-    if submitted:
-        existing = trips[(trips["date"].dt.date == book_date) & (trips["site"] == book_site)]
-        st.markdown("### 🔎 Availability Check")
-        
-        if not existing.empty:
-            current_load = existing["num_students"].sum()
-            bus_capacity = 13 if current_load <= 13 else 22
-            available_seats = bus_capacity - current_load
-            
-            if available_seats >= book_students:
-                st.success(f"🎉 **GOOD NEWS:** There is already a bus going to {book_site} on {book_date}.")
-                st.info(f"The bus has **{available_seats} seats available**. Your students can join. **Cost: R 0**.")
-            else:
-                st.warning(f"⚠️ The bus only has {available_seats} seats left. An additional vehicle is required.")
-        else:
-            st.info(f"No existing transport found. A new vehicle must be dispatched.")
-            
-        new_booking = pd.DataFrame([{
-            "Date": book_date,
-            "Department": book_dept,
-            "Hospital": book_site,
-            "Students": book_students,
-            "Pickup": book_pickup,
-            "Return": book_return,
-            "Est_Cost": 1200 if existing.empty else 0
-        }])
-        
-        st.session_state.private_bookings = pd.concat([st.session_state.private_bookings, new_booking], ignore_index=True)
-        st.balloons()
-        st.success("✅ **Booking added to your private session.** Scroll down to download.")
-
-    if not st.session_state.private_bookings.empty:
-        st.markdown("---")
-        st.subheader("📋 Your Session's Bookings (Private)")
-        st.dataframe(st.session_state.private_bookings, use_container_width=True)
-        
-        csv = st.session_state.private_bookings.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Download Secure Booking Records (CSV)",
-            data=csv,
-            file_name=f"FHWS_Private_Bookings_{datetime.now().strftime('%Y-%m-%d')}.csv",
-            mime="text/csv",
-        )
-        
-        if st.button("Clear Session Records"):
-            st.session_state.private_bookings = pd.DataFrame()
-            st.rerun()
+        st.markdown("### Detailed Routes")
+        display_df = nursing_data[["week", "route_description", "bus_size"]].dropna()
+        st.dataframe(display_df, use_container_width=True)
+    else:
+        st.write("No route data available.")
 
 # Footer
 st.markdown("---")
