@@ -50,61 +50,110 @@ with tab_overview:
     c2.metric("Students Transported", f"{int(trips['num_students'].sum()):,}")
     c3.metric("Unique Sites", f"{trips['site'].nunique()}")
     c4.metric("Avg Students/Trip", f"{trips['num_students'].mean():.2f}")
+    
     monthly = trips.groupby(["month", "department"], as_index=False).agg(trips=("date", "count"))
     st.bar_chart(monthly.pivot(index="month", columns="department", values="trips").fillna(0))
 
 # ---------------- TAB 2: VISUAL ANALYSIS ----------------
 with tab_analysis:
     st.subheader("📈 Data Analysis & Trends")
+    
+    # 1. Bus Over-provisioning
     st.markdown("### 1. Bus Size Over-Provisioning")
+    st.markdown("The vast majority of trips carry only 1 to 3 students, indicating we are dispatching large buses that are mostly empty.")
     hist_values = pd.cut(trips['num_students'], bins=[0,1,2,3,5,10,15,22,50])
     hist_df = hist_values.value_counts().sort_index().reset_index()
     hist_df.columns = ["Students on Bus", "Number of Trips"]
     hist_df["Students on Bus"] = hist_df["Students on Bus"].astype(str)
     st.bar_chart(hist_df.set_index("Students on Bus"))
     
+    st.markdown("---")
+    
+    # 2. Weekday Volume
     st.markdown("### 2. Trip Volume by Day of Week")
+    st.markdown("Transport peaks on Friday, Saturday, and Sunday due to DEMS night duty and weekend shifts.")
     weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     weekday_counts = trips.groupby("weekday").size().reset_index(name="Trips")
     weekday_counts["weekday"] = pd.Categorical(weekday_counts["weekday"], categories=weekday_order, ordered=True)
     st.bar_chart(weekday_counts.sort_values("weekday").set_index("weekday"))
 
+    st.markdown("---")
+
+    # 3. Top 10 Expensive Routes
+    st.markdown("### 3. Top 10 Most Expensive Routes")
+    st.markdown("Long-distance routes like Stellenbosch and Paarl consume the majority of the transport budget.")
+    costs_clean = costs.dropna(subset=["total_cost"])
+    top_routes = costs_clean.groupby("route_description")["total_cost"].sum().nlargest(10).reset_index()
+    st.bar_chart(top_routes.set_index("route_description")["total_cost"])
+
+    st.markdown("---")
+
+    # 4. Route Consolidation Matrix (Simplified visual)
+    st.markdown("### 4. Route Consolidation Matrix")
+    st.markdown("Visualizing the worst-case days where multiple buses were sent to the same hospital, versus the optimized reality.")
+    duplicates = trips.groupby(["date", "site"], as_index=False).agg(
+        trips=("num_students", "count")
+    ).query("trips > 1")
+    top_targets = duplicates.groupby("site", as_index=False).agg(
+        excess_trips=("trips", lambda x: (x - 1).sum())
+    ).sort_values("excess_trips", ascending=False).head(5)
+    
+    # Display as a bar chart showing excess trips
+    st.bar_chart(top_targets.set_index("site")["excess_trips"])
+
 # ---------------- TAB 3: CONSOLIDATION ----------------
 with tab_consolidation:
+    st.subheader("🎯 Route Consolidation Opportunities")
     duplicates = trips.groupby(["date", "site"], as_index=False).agg(
         trips=("num_students", "count"), total_students=("num_students", "sum")
     ).query("trips > 1").sort_values(["trips", "total_students"], ascending=False)
     credible = costs[costs["cost_per_unit"] >= 100]
     median_cost = credible["cost_per_unit"].median() if not credible.empty else 1200
     excess_trips = max(duplicates["trips"].sum() - len(duplicates), 0)
+    
     c1, c2, c3 = st.columns(3)
     c1.metric("Days with Duplication", f"{len(duplicates):,}")
     c2.metric("Excess Trips", f"{int(excess_trips):,}")
     c3.metric("Est. Annual Saving", f"R {excess_trips * median_cost:,.0f}")
 
+    st.markdown("### Financial Impact (Waterfall)")
+    st.markdown(f"By eliminating the {excess_trips} excess trips at R {median_cost:,.0f} each, we unlock massive savings.")
+    
+    # Simulated waterfall data for the bar chart
+    waterfall_data = pd.DataFrame({
+        "Category": ["Current Cost", "Savings", "Optimized Cost"],
+        "Amount": [(excess_trips + len(duplicates)) * median_cost, -(excess_trips * median_cost), len(duplicates) * median_cost]
+    }).set_index("Category")
+    st.bar_chart(waterfall_data)
+
 # ---------------- TAB 4: COSTS ----------------
 with tab_costs:
+    st.subheader("💰 Cost Breakdown (AY2024)")
     costs_clean = costs.dropna(subset=["cost_per_unit", "total_cost"])
-    st.bar_chart(costs_clean.groupby("department")["total_cost"].sum())
+    by_dept = costs_clean.groupby("department")["total_cost"].sum()
+    st.bar_chart(by_dept)
 
 # ---------------- TAB 5: BUS UTILIZATION ----------------
 with tab_bus:
+    st.subheader("🚐 Bus Utilization Details")
     student_load = trips.groupby(["date", "site"], as_index=False).agg(students=("num_students", "sum"))
     c1, c2 = st.columns(2)
     c1.metric("Avg Students/Trip", f"{trips['num_students'].mean():.2f}")
     c2.metric("Day+Sites with ≤5 Students", f"{(student_load['students'] <= 5).sum()}")
+    st.info("Consider replacing 13-seaters and 22-seaters with 7-seaters on days with low student volume to save costs.")
 
 # ---------------- TAB 6: NURSING ----------------
 with tab_nursing:
+    st.subheader("🏥 Nursing Department: Cluster Routes")
     nursing_data = costs[costs["department"] == "Nursing"].copy()
     if not nursing_data.empty:
-        st.dataframe(nursing_data["bus_size"].value_counts().reset_index(), use_container_width=True)
+        bus_counts = nursing_data["bus_size"].value_counts().reset_index()
+        st.dataframe(bus_counts, use_container_width=True)
 
-# ---------------- TAB 7: AUTO-PLANNER (WITH CUSTOM TIMES) ----------------
+# ---------------- TAB 7: AUTO-PLANNER ----------------
 with tab_simulator:
     st.subheader("🤖 Auto-Generate Transport Dispatch Plan")
     
-    # 1. Student Inputs
     st.markdown("### 1. Enter Student Numbers")
     col1, col2, col3 = st.columns(3)
     dems_students = col1.number_input("DEMS Students", min_value=0, value=10)
@@ -112,19 +161,15 @@ with tab_simulator:
     nursing_students = col3.number_input("Nursing Students", min_value=0, value=8)
     total_students = dems_students + mits_students + nursing_students
 
-    # 2. Custom Time Inputs
     st.markdown("### 2. Set Custom Departure & Return Times")
-    st.info("Override the historical times with the specific schedule for this trip.")
     t_col1, t_col2 = st.columns(2)
     custom_pickup = t_col1.text_input("Pickup Time", "06:30")
     custom_return = t_col2.text_input("Return Time", "16:00")
 
-    # 3. Site Selection
     st.markdown("### 3. Select Clinical Sites")
     all_sites = sorted(trips["site"].dropna().unique().tolist())
     selected_sites = st.multiselect("Select Sites:", options=all_sites, default=[all_sites[0]] if all_sites else [])
     
-    # 4. Generation
     if selected_sites and total_students > 0:
         optimized_buses_22 = total_students // 22
         remainder = total_students % 22
@@ -135,7 +180,6 @@ with tab_simulator:
         students_per_site = math.ceil(total_students / len(selected_sites))
         
         for site in selected_sites:
-            # We now use the CUSTOM times instead of the historical times
             plan_data.append({
                 "Destination": site, 
                 "Pickup Time": custom_pickup, 
@@ -155,7 +199,6 @@ with tab_simulator:
 # ---------------- TAB 8: SECURE BOOKING ----------------
 with tab_booking:
     st.subheader("🔒 Secure Booking Engine")
-    st.info("**Security Notice:** Bookings are stored in your private browser session. Download your records to save them to the CPUT network.")
     
     with st.form("booking_form"):
         col1, col2 = st.columns(2)
