@@ -184,12 +184,15 @@ with tab_planner:
         with c1:
             st.markdown("#### 📍 Route Details")
             # Find the most common route description (if available)
-            route_desc = site_data["route_description"].mode()
-            if not route_desc.empty and pd.notna(route_desc[0]):
-                st.write(f"**Historical Route:** {route_desc[0]}")
+                        # Safely check if route description exists in this table
+            if "route_description" in site_data.columns:
+                route_desc = site_data["route_description"].mode()
+                if not route_desc.empty and pd.notna(route_desc[0]):
+                    st.write(f"**Historical Route:** {route_desc[0]}")
+                else:
+                    st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
             else:
                 st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
-            
             # Show the most common pick-up point
             pickup = site_data["pickup_point"].mode()
             pickup_text = pickup[0] if not pickup.empty and pd.notna(pickup[0]) else "CPUT Bellville Campus"
