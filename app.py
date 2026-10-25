@@ -148,12 +148,12 @@ with tab_nursing:
 # ---------------- TAB 6: STRATEGY SIMULATOR ----------------
 with tab_simulator:
     st.subheader("🧮 Transport Strategy Simulator")
-    st.markdown("Simulate the transport requirements for upcoming clinical placements. See how consolidating departments saves buses and money.")
+    st.markdown("Simulate transport for upcoming placements. See the exact routes, times, and financial savings.")
     
     # 1. Select multiple hospitals
     all_sites = sorted(trips["site"].dropna().unique().tolist())
     selected_sites = st.multiselect(
-        "1. Select the Clinical Sites for this placement:", 
+        "1. Select Clinical Sites:", 
         options=all_sites,
         default=[all_sites[0]] if all_sites else []
     )
@@ -167,52 +167,68 @@ with tab_simulator:
     
     total_students = dems_students + mits_students + nursing_students
     
-    # 3. Calculation Logic
+    # 3. Show historical times for the selected sites
+    if selected_sites:
+        st.markdown("---")
+        st.markdown("### 🕒 Historical Route Details for Selected Sites")
+        
+        # Filter trips for selected sites
+        site_data = trips[trips["site"].isin(selected_sites)]
+        
+        for site in selected_sites:
+            # Get most common times for this specific site
+            site_specific = site_data[site_data["site"] == site]
+            if not site_specific.empty:
+                pickup = site_specific["pickup_time"].dropna().mode()
+                dropoff = site_specific["collection_time"].dropna().mode()
+                
+                p_time = pickup[0] if not pickup.empty else "06:30"
+                d_time = dropoff[0] if not dropoff.empty else "16:00"
+                
+                st.info(f"**{site}:** Pickup at **{p_time}** from CPUT Bellville | Return at **{d_time}**")
+
+    # 4. Calculation and Visuals
     if selected_sites and total_students > 0:
         st.markdown("---")
         st.markdown("### 📊 Transport Simulation Results")
         
-        # Current approach (each dept books separately)
+        # Current approach (separate bookings)
         current_buses = 0
         if dems_students > 0: current_buses += math.ceil(dems_students / 13)
         if mits_students > 0: current_buses += math.ceil(mits_students / 7)
         if nursing_students > 0: current_buses += math.ceil(nursing_students / 22)
         
-        # Optimized approach (all depts share buses)
+        # Optimized approach (shared bookings)
         optimized_buses_22 = total_students // 22
         remainder = total_students % 22
         optimized_buses_13 = math.ceil(remainder / 13) if remainder > 0 else 0
         total_optimized_buses = optimized_buses_22 + optimized_buses_13
         
         # Cost calculation
-        median_cost = 1200 # Base cost per trip
+        median_cost = 1200
         weeks = 3
         total_days = weeks * 5 # Mon-Fri
         current_total_cost = current_buses * median_cost * total_days
         optimized_total_cost = total_optimized_buses * median_cost * total_days
         total_savings = current_total_cost - optimized_total_cost
         
-        # Display KPIs
+        # KPIs
         c1, c2, c3 = st.columns(3)
         c1.metric("Total Students", total_students)
-        c2.metric("Current Buses Needed", current_buses)
-        c3.metric("Optimized Buses Needed", total_optimized_buses)
+        c2.metric("Current Buses/Day", current_buses)
+        c3.metric("Optimized Buses/Day", total_optimized_buses)
         
-        # --- VISUALS ---
-        st.markdown("### 📈 Visual Comparison")
+        # Visual Charts
         v1, v2 = st.columns(2)
-        
         with v1:
-            # Bar chart comparing bus counts
             chart_data = pd.DataFrame({
                 "Scenario": ["Current (Fragmented)", "Optimized (Consolidated)"],
                 "Buses Required": [current_buses, total_optimized_buses]
             }).set_index("Scenario")
             st.bar_chart(chart_data)
-            st.caption("Bus Dispatched per Day")
+            st.caption("Buses Required per Day")
             
         with v2:
-            # Pie chart comparing costs
             cost_data = pd.DataFrame({
                 "Cost Type": ["Savings", "Remaining Cost"],
                 "Amount": [total_savings, optimized_total_cost]
@@ -220,22 +236,22 @@ with tab_simulator:
             st.bar_chart(cost_data)
             st.caption(f"Financial Breakdown over {weeks} weeks")
             
-        # Financial KPIs
+        # Financial Summary
         st.markdown(f"#### 💰 Financial Impact over {weeks} Weeks")
-        st.markdown(f"Based on {total_days} travel days and an estimated cost of R {median_cost} per bus trip.")
+        st.markdown(f"Calculated for {total_days} travel days at R {median_cost} per trip.")
         f1, f2, f3 = st.columns(3)
         f1.metric("Cost (Current)", f"R {current_total_cost:,.0f}")
         f2.metric("Cost (Optimized)", f"R {optimized_total_cost:,.0f}")
         f3.metric("Total Savings", f"R {total_savings:,.0f}", delta=f"R {total_savings:,.0f}")
         
-        # Show breakdown table
+        # Bus Breakdown Table
         st.markdown("### 🚐 Proposed Bus Breakdown")
         breakdown_data = {
-            "Bus Type": ["22-Seater", "13-Seater"],
-            "Quantity": [optimized_buses_22, optimized_buses_13]
+            "Bus Type": ["22-Seater Bus", "13-Seater Bus"],
+            "Quantity Needed": [optimized_buses_22, optimized_buses_13]
         }
         st.table(pd.DataFrame(breakdown_data))
-        
+
 # Footer
 st.markdown("---")
 st.caption("Built by Masiu Thabang and Mbalentine Mgingqizana · Faculty of Applied Sciences · CPUT")
