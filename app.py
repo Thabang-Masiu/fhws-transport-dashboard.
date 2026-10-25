@@ -18,7 +18,6 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     trips = pd.read_csv("trips_by_department.csv")
-    # FIX: Force the date column to be a proper datetime object, ignoring errors
     trips["date"] = pd.to_datetime(trips["date"], errors="coerce")
     costs = pd.read_csv("routes_and_costs.csv")
     return trips, costs
@@ -32,7 +31,6 @@ def save_new_booking(new_data):
     updated_trips.to_csv("trips_by_department.csv", index=False)
     st.cache_data.clear()
 
-# FIX: Safely compute derived columns
 trips["month"] = trips["date"].dt.to_period("M").astype(str)
 
 # ============================================================
@@ -50,10 +48,10 @@ if sel_dept != "All":
     filtered = filtered[filtered["department"] == sel_dept]
 
 # ============================================================
-# Tabs
+# Tabs (Added Booking History)
 # ============================================================
-tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "➕ Live Booking Engine"]
+tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking, tab_history = st.tabs(
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "➕ Live Booking Engine", "📋 Booking History"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -188,7 +186,42 @@ with tab_booking:
         
         save_new_booking(new_row)
         st.balloons()
-        st.success("✅ **Booking Saved Successfully!** The dashboard metrics have been updated.")
+        st.success("✅ **Booking Saved Successfully!** The dashboard metrics have been updated. Check the **📋 Booking History** tab to view your records.")
+
+# ---------------- TAB 8: BOOKING HISTORY ----------------
+with tab_history:
+    st.subheader("📋 Permanent Booking History")
+    st.markdown("This is a permanent log of all transport requests made through the Live Booking Engine.")
+    
+    # Filter ONLY for the live bookings we made using the system
+    live_bookings = trips[trips["tsqt_number"] == "LIVE-BOOKING"].copy()
+    
+    if live_bookings.empty:
+        st.info("No live bookings have been made yet. Go to the 'Live Booking Engine' tab to make your first booking.")
+    else:
+        # Clean up the display
+        display_df = live_bookings[[
+            "date", "department", "site", "num_students", 
+            "pickup_time", "collection_time", "total_cost"
+        ]].sort_values("date", ascending=False)
+        
+        # Format the date and cost columns
+        display_df["date"] = display_df["date"].dt.strftime('%Y-%m-%d')
+        display_df["total_cost"] = display_df["total_cost"].apply(lambda x: f"R {x:,.0f}")
+        
+        st.dataframe(display_df, use_container_width=True)
+        
+        # Provide a download button for the records
+        csv = display_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download Booking Records (CSV)",
+            data=csv,
+            file_name=f"FHWS_Booking_Records_{datetime.now().strftime('%Y-%m-%d')}.csv",
+            mime="text/csv",
+        )
+        
+        # Show a quick summary metric
+        st.metric("Total Live Bookings Made", len(display_df))
 
 # Footer
 st.markdown("---")
