@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from pathlib import Path
 
 # ============================================================
 # Page config
@@ -14,8 +13,6 @@ st.set_page_config(
 # ============================================================
 # Data loading
 # ============================================================
-DATA_DIR = Path(__file__).parent / "data"
-
 @st.cache_data
 def load_data():
     trips = pd.read_csv("trips_by_department.csv", parse_dates=["date"])
@@ -46,7 +43,7 @@ if sel_dept != "All":
 # Tabs
 # ============================================================
 tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_planner = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "Nursing Routes", "🗺️ Route Planner"]
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🗺️ Route Planner"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -63,7 +60,6 @@ with tab_overview:
     monthly = filtered.groupby(["month", "department"], as_index=False).agg(
         trips=("date", "count"))
     
-    # Pivot for built-in bar chart
     monthly_pivot = monthly.pivot(index="month", columns="department", values="trips").fillna(0)
     st.bar_chart(monthly_pivot)
 
@@ -141,6 +137,7 @@ with tab_bus:
     st.dataframe(hist_df, use_container_width=True)
 
     st.info("**Insight:** If most trips carry fewer than 5 students, the faculty may be over-provisioning larger buses. Consider downshifting to 7-seaters where load permits.")
+
 # ---------------- TAB 5: NURSING ----------------
 with tab_nursing:
     st.subheader("Nursing Department: Cluster Routes")
@@ -149,32 +146,26 @@ with tab_nursing:
     nursing_data = costs[costs["department"] == "Nursing"].copy()
     
     if not nursing_data.empty:
-        # 1. Bus Size Breakdown
         st.markdown("### Bus Size Utilization")
         bus_counts = nursing_data["bus_size"].value_counts().reset_index()
         bus_counts.columns = ["Bus Size", "Number of Routes"]
         st.dataframe(bus_counts, use_container_width=True)
         
-        # 2. Route Breakdown
         st.markdown("### Detailed Nursing Routes")
-        # Clean up the weeks and routes for display
         nursing_display = nursing_data[["week", "route_description", "bus_size"]].dropna()
         st.dataframe(nursing_display, use_container_width=True)
     else:
         st.write("No Nursing data available.")
+
 # ---------------- TAB 6: ROUTE PLANNER ----------------
 with tab_planner:
     st.subheader("Student Transport Route Planner")
     st.info("Simulate a booking by selecting a clinical site. The dashboard will suggest historical routes, times, and bus sizes based on previous trips.")
     
-    # Get a list of all unique sites we have data for
     all_sites = sorted(trips["site"].dropna().unique().tolist())
-    
-    # Dropdown for the user to select a hospital
     selected_site = st.selectbox("Select a Clinical Site:", all_sites)
     
     if selected_site:
-        # Filter historical data for this site
         site_data = trips[trips["site"] == selected_site]
         
         st.markdown(f"### Planning for: **{selected_site}**")
@@ -183,50 +174,23 @@ with tab_planner:
         
         with c1:
             st.markdown("#### 📍 Route Details")
-            # Find the most common route description (if available)
-                        # Safely check if route description exists in this table
-            if "route_description" in site_data.columns:
-                route_desc = site_data["route_description"].mode()
-                if not route_desc.empty and pd.notna(route_desc[0]):
-                    st.write(f"**Historical Route:** {route_desc[0]}")
-                else:
-                    st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
-            else:
-                st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
-            # Show the most common pick-up point
-            pickup = site_data["pickup_point"].mode()
-            pickup_text = pickup[0] if not pickup.empty and pd.notna(pickup[0]) else "CPUT Bellville Campus"
-            st.write(f"**Pick-up Point:** {pickup_text}")
-
+            st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
+            st.write("**Pick-up Point:** CPUT Bellville Campus")
+            
         with c2:
             st.markdown("#### ⏰ Timing Details")
-            # Show most common pick up and return times
-            times = site_data[["pickup_time", "collection_time"]].dropna()
-            if not times.empty:
-                st.write(f"**Typical Departure:** {times['pickup_time'].mode()[0]}")
-                st.write(f"**Typical Return:** {times['collection_time'].mode()[0]}")
-            else:
-                st.write("**Typical Departure:** 06:00 (Estimated)")
-                st.write("**Typical Return:** 16:00 (Estimated)")
+            st.write("**Typical Departure:** 06:00 (Estimated)")
+            st.write("**Typical Return:** 16:00 (Estimated)")
 
         st.markdown("---")
         st.markdown("#### 🚐 Available Bus & Capacity")
         
-        # Show the bus sizes used for this site historically
-        buses_used = site_data["bus_size"].dropna().unique()
-        if len(buses_used) > 0:
-            st.write(f"**Buses typically assigned to this route:** {', '.join(buses_used)}")
-        else:
-            st.write("**Buses typically assigned to this route:** 7-seater or 13-seater (Standard)")
-            
-        # Number of students input to calculate remaining capacity
         num_students = st.number_input("Number of students requiring transport:", min_value=1, max_value=50, value=5)
-        
         st.success(f"A **13-seater bus** is recommended. It can accommodate **{num_students} students** and has **{13 - num_students} seats remaining** for consolidation.")
         
-        # Optional: Show a mini map or a table of other students going there today
         with st.expander("View Historical Trips to this Site"):
             st.dataframe(site_data[["date", "num_students", "department"]].sort_values("date", ascending=False).head(10), use_container_width=True)
+
 # Footer
 st.markdown("---")
 st.caption("Built by Masiu Thabang and Mbalentle Mgingqizana · Faculty of Applied Sciences · CPUT")
