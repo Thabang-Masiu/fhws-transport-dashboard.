@@ -18,8 +18,8 @@ DATA_DIR = Path(__file__).parent / "data"
 
 @st.cache_data
 def load_data():
-    trips = pd.read_csv(DATA_DIR / "trips_by_department.csv", parse_dates=["date"])
-    costs = pd.read_csv(DATA_DIR / "routes_and_costs.csv")
+    trips = pd.read_csv("trips_by_department.csv", parse_dates=["date"])
+    costs = pd.read_csv("routes_and_costs.csv")
     return trips, costs
 
 trips, costs = load_data()
@@ -142,4 +142,4 @@ with tab_bus:
 
 # Footer
 st.markdown("---")
-st.caption("Built by the Mathematics Technology Programme · Faculty of Applied Sciences · CPUT")
+st.caption("Built by Masiu Thabang and Mbalentle Mgingqizana · Faculty of Applied Sciences · CPUT")
