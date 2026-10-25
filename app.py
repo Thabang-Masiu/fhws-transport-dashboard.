@@ -134,9 +134,11 @@ with tab_bus:
     c3.metric("Day+Sites with ≤5 Students", f"{under_5} ({pct:.1f}%)")
 
     st.markdown("### Distribution of Students per Day-Site")
-    # Built in histogram
     hist_values = pd.cut(student_load['students'], bins=[0,2,5,10,15,20,25,30])
-    st.bar_chart(hist_values.value_counts().sort_index())
+    hist_df = hist_values.value_counts().reset_index()
+    hist_df.columns = ["Students per Trip", "Number of Days"]
+    hist_df["Students per Trip"] = hist_df["Students per Trip"].astype(str)
+    st.dataframe(hist_df, use_container_width=True)
 
     st.info("**Insight:** If most trips carry fewer than 5 students, the faculty may be over-provisioning larger buses. Consider downshifting to 7-seaters where load permits.")
 
