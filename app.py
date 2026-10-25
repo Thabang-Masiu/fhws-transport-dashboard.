@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import math
 from datetime import datetime, date
-import os
 
 # ============================================================
 # Page config
@@ -18,7 +17,9 @@ st.set_page_config(
 # ============================================================
 @st.cache_data
 def load_data():
-    trips = pd.read_csv("trips_by_department.csv", parse_dates=["date"])
+    trips = pd.read_csv("trips_by_department.csv")
+    # FIX: Force the date column to be a proper datetime object, ignoring errors
+    trips["date"] = pd.to_datetime(trips["date"], errors="coerce")
     costs = pd.read_csv("routes_and_costs.csv")
     return trips, costs
 
@@ -26,16 +27,12 @@ trips, costs = load_data()
 
 def save_new_booking(new_data):
     """Saves the new booking to the CSV so it is remembered forever."""
-    # Read the raw file (bypassing cache)
     raw_trips = pd.read_csv("trips_by_department.csv")
-    # Append new data
     updated_trips = pd.concat([raw_trips, new_data], ignore_index=True)
-    # Save back to the file
     updated_trips.to_csv("trips_by_department.csv", index=False)
-    # Clear cache so the dashboard updates immediately
     st.cache_data.clear()
 
-# Compute derived columns
+# FIX: Safely compute derived columns
 trips["month"] = trips["date"].dt.to_period("M").astype(str)
 
 # ============================================================
@@ -59,8 +56,7 @@ tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator,
     ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "➕ Live Booking Engine"]
 )
 
-# (TABS 1 to 6 remain exactly the same as before)
-
+# ---------------- TAB 1: OVERVIEW ----------------
 with tab_overview:
     st.subheader("Transport Activity Overview")
     c1, c2, c3, c4 = st.columns(4)
@@ -68,9 +64,11 @@ with tab_overview:
     c2.metric("Students Transported", f"{int(filtered['num_students'].sum()):,}")
     c3.metric("Unique Sites", f"{filtered['site'].nunique()}")
     c4.metric("Avg Students/Trip", f"{filtered['num_students'].mean():.2f}")
+    
     monthly = filtered.groupby(["month", "department"], as_index=False).agg(trips=("date", "count"))
     st.bar_chart(monthly.pivot(index="month", columns="department", values="trips").fillna(0))
 
+# ---------------- TAB 2: CONSOLIDATION ----------------
 with tab_consolidation:
     duplicates = filtered.groupby(["date", "site"], as_index=False).agg(
         trips=("num_students", "count"), total_students=("num_students", "sum")
@@ -83,21 +81,25 @@ with tab_consolidation:
     c2.metric("Excess Trips", f"{int(excess_trips):,}")
     c3.metric("Est. Annual Saving", f"R {excess_trips * median_cost:,.0f}")
 
+# ---------------- TAB 3: COSTS ----------------
 with tab_costs:
     costs_clean = costs.dropna(subset=["cost_per_unit", "total_cost"])
     st.bar_chart(costs_clean.groupby("department")["total_cost"].sum())
 
+# ---------------- TAB 4: BUS UTILIZATION ----------------
 with tab_bus:
     student_load = filtered.groupby(["date", "site"], as_index=False).agg(students=("num_students", "sum"))
     c1, c2 = st.columns(2)
     c1.metric("Avg Students/Trip", f"{filtered['num_students'].mean():.2f}")
     c2.metric("Day+Sites with ≤5 Students", f"{(student_load['students'] <= 5).sum()}")
 
+# ---------------- TAB 5: NURSING ----------------
 with tab_nursing:
     nursing_data = costs[costs["department"] == "Nursing"].copy()
     if not nursing_data.empty:
         st.dataframe(nursing_data["bus_size"].value_counts().reset_index(), use_container_width=True)
 
+# ---------------- TAB 6: AUTO-PLANNER ----------------
 with tab_simulator:
     st.subheader("🤖 Auto-Generate Transport Dispatch Plan")
     col1, col2 = st.columns(2)
@@ -125,7 +127,6 @@ with tab_simulator:
             plan_data.append({"Destination": site, "Pickup Time": p_time, "Return Time": d_time, "Est. Students": students_per_site})
             
         dispatch_df = pd.DataFrame(plan_data)
-        
         st.success(f"✅ **Plan Generated!** {total_students} students require **{total_optimized_buses} buses**.")
         st.dataframe(dispatch_df, use_container_width=True)
         st.download_button("📥 Download Dispatch Sheet", dispatch_df.to_csv(index=False).encode('utf-8'), "Dispatch_Plan.csv", "text/csv")
@@ -149,54 +150,45 @@ with tab_booking:
         submitted = st.form_submit_button("Check Availability & Book")
         
     if submitted:
-        # 1. Check for existing trips on that date and site
         existing = trips[(trips["date"].dt.date == book_date) & (trips["site"] == book_site)]
-        
         st.markdown("### 🔎 Availability Check")
         
         if not existing.empty:
-            # Calculate how full the existing bus is
             current_load = existing["num_students"].sum()
-            # Assume standard 13-seater for small groups, 22 for larger
             bus_capacity = 13 if current_load <= 13 else 22
             available_seats = bus_capacity - current_load
             
             if available_seats >= book_students:
                 st.success(f"🎉 **GOOD NEWS:** There is already a bus going to {book_site} on {book_date} ({existing['department'].iloc[0]} department).")
                 st.info(f"The existing bus has **{available_seats} seats available**. Your {book_students} students can join this bus. **Cost of this booking: R 0** (Saving R 1,200).")
-                can_book = True
             else:
                 st.warning(f"⚠️ A bus is already going to {book_site}, but it only has {available_seats} seats left. You will need to book an additional vehicle.")
-                can_book = True
         else:
             st.info(f"No existing transport found for {book_site} on {book_date}. A new vehicle must be dispatched.")
-            can_book = True
             
-        if can_book:
-            # 2. Save the booking permanently
-            new_row = pd.DataFrame([{
-                "department": book_dept,
-                "date": pd.to_datetime(book_date),
-                "week": None,
-                "site": book_site,
-                "route_description": f"CPUT Bellville to {book_site}",
-                "num_students": book_students,
-                "pickup_time": book_pickup,
-                "collection_time": book_return,
-                "pickup_point": "CPUT Bellville Campus",
-                "bus_size": None,
-                "trips": 1,
-                "cost_per_unit": 1200 if existing.empty else 0,
-                "units": 1,
-                "total_cost": 1200 if existing.empty else 0,
-                "tsqt_number": "LIVE-BOOKING",
-                "source_file": "live_system.csv",
-                "source_sheet": "form"
-            }])
-            
-            save_new_booking(new_row)
-            st.balloons()
-            st.success("✅ **Booking Saved Successfully!** The dashboard metrics have been updated. Check the Overview tab to see it.")
+        new_row = pd.DataFrame([{
+            "department": book_dept,
+            "date": pd.to_datetime(book_date),
+            "week": None,
+            "site": book_site,
+            "route_description": f"CPUT Bellville to {book_site}",
+            "num_students": book_students,
+            "pickup_time": book_pickup,
+            "collection_time": book_return,
+            "pickup_point": "CPUT Bellville Campus",
+            "bus_size": None,
+            "trips": 1,
+            "cost_per_unit": 1200 if existing.empty else 0,
+            "units": 1,
+            "total_cost": 1200 if existing.empty else 0,
+            "tsqt_number": "LIVE-BOOKING",
+            "source_file": "live_system.csv",
+            "source_sheet": "form"
+        }])
+        
+        save_new_booking(new_row)
+        st.balloons()
+        st.success("✅ **Booking Saved Successfully!** The dashboard metrics have been updated.")
 
 # Footer
 st.markdown("---")
