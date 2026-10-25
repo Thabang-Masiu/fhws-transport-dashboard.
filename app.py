@@ -45,7 +45,7 @@ if sel_dept != "All":
 # ============================================================
 # Tabs
 # ============================================================
-tab_overview, tab_consolidation, tab_costs, tab_bus = st.tabs(
+tab_overview, tab_consolidation, tab_costs, tab_bus, nursing_routes = st.tabs(
     ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "Nursing Routes"]
 )
 
