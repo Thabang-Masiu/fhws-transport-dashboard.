@@ -1,0 +1,185 @@
+department,week,route_description,bus_size,cost_per_unit,units,total_cost,source_file,source_sheet
+Nursing,,"South Point, Belhar to Worcester hospital (Drop off",,3600.0,1.0,3600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Worester hospital to South Point, Belhar (Collect",,3600.0,1.0,3600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Tygerberg and Karl Bremmer hospitals and return,,980.0,9.0,8820.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to New Somerset hospital and return,,980.0,28.0,27440.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Mitchell's Plain, Michael M, Site B, Kuyasa, Nolungile, Rocklands, Lentegeur clinics and return",,1600.0,28.0,44800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Lotus River, Retreat, Lady Michaelis, D6 clinic and retur",,1600.0,19.0,30400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Vanguard, Langa, Lansdowne, Nyanga, Gugulethu and return",,1200.0,18.0,21600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Reed Street, Parow, Dirkie Uys, Ruyterwacht, Ravensmead, Elsie",,980.0,28.0,27440.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus Campus to St Vincent,
+Symphony, Kasselsvlei, Scottsdene
+and return",,1400.0,28.0,39200.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Strand, Macassar & Gustrow and return",,2600.0,9.0,23400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Retreat, Gugulethu, Vanguard to drop off at Bellville Campus",,800.0,4.0,3200.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Macassar, Michael M, Site B, Mitchell's Plain drop off at Bellville Campus",,800.0,4.0,3200.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Eersteriver hospital and back,,850.0,2.0,1700.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Khayelitsha hospital and back,,850.0,30.0,25500.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Groote Schuur hospital and back,,850.0,16.0,13600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Tygerberg & Karl Bremmer hospitals and back,,750.0,26.0,19500.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Mitchell's Plain hospital and back,,850.0,10.0,8500.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Pinelands EMS Base and back,,850.0,9.0,7650.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Gugulethu hospital and back,,850.0,6.0,5100.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to Groote Schuur hospital and back,,850.0,8.0,6800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to Groote Schuur hospital and back,,850.0,9.0,7650.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bellville campus to New Somerset, Mowbray and Red Cross hospitals and back",,1200.0,18.0,21600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,-Bellville Campus to New Somerset hospital and return,,850.0,3.0,2550.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to Khayelitsha District hospital and bac,,1200.0,18.0,21600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to Kraaifontein CHC and back,,1200.0,8.0,9600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Karl Bremmer hospital and return,,780.0,18.0,14040.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Tygerberg hospital and return,,780.0,9.0,7020.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Tygerberg hospital and retur,,780.0,5.0,3900.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Mowbray & Red Cross hospitals and return,,980.0,5.0,4900.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Tygerberg hospital and return,,980.0,9.0,8820.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Pinelands CPOA, Manor Care CPOA, Sea Point CPOA and return",,1400.0,14.0,19600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Fairmead CPOA, Anchusa CPOA, Avondrust CPOA and return",,1400.0,14.0,19600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Gugulethu MOU, Erica Place CPOA, Lotus River CPOA, Retreat MOU and return",,1600.0,14.0,22400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Groote Schuur hospital and return,,980.0,16.0,15680.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Groote Schuur hospital and return,,980.0,16.0,15680.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Tygerberg hospital and return,,850.0,16.0,13600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Red Cross & Mowbray hospital and retur,,1200.0,17.0,20400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Mitchell;s Plain District, Lentegeur hospital, Mitchell's Plain MOU and return TRIP",,1400.0,9.0,12600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Helderberg hospital, Macassar MOU, Kleinvlei MOU, Site B MOU, Michael M MOU and return TRIP",,4500.0,9.0,40500.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Paarl hospital and return TRIP,,3800.0,8.0,30400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to Stellenbosch hospital and return TRIP,,2600.0,9.0,23400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bellville Campus to CPT Airport and return 14 June 2024 back to campus TRIP,,2450.0,2.0,4900.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville Campus to Red Cross hospital and return,,850.0,30.0,25500.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bellville Campus to Khayelitsha
+District hospital and return",,850.0,29.0,24650.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bellville Campus to Karl
+Bremmer hospital and return",,780.0,23.0,17940.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to GSH and return,,850.0,9.0,7650.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bellville campus to GSH and return,,850.0,6.0,5100.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bvl to TBH and return,,780.0,21.0,16380.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bvl to Khayelitsha District hospital and
+Mitchell's Plain UWC or Mitchell's
+Plain District hospital and return",,1200.0,22.0,26400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bvl to Karl Bremmer and Kraaifontein
+hospital and return",,1600.0,13.0,20800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bvl to Mowbray & Red Cross hospital and
+return",,980.0,10.0,9800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,Bvl to Kraaifontein Hospital,,980.0,5.0,4900.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Mits,,"Bellville Campus to Karl Bremmer
+and Paarl hospital and return",,4600.0,5.0,23000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl to Paarl Hospital,,3800.0,10.0,38000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl toWorcester,,3600.0,2.0,7200.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Victoria, Lady
+Michaelis, Lotus, Grassy Park and
+return",,1600.0,13.0,20800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Macassar,
+Elsiesriver, Gugulethu, Vanguard,
+Retreat and return",,2200.0,10.0,22000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bvl to Khayelitsha, Michael M, Site B,
+Kuyasa, Nolungile and return",,1600.0,8.0,12800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bvl to Mitchell's Plain District, Mitchell's
+Plain MOU, Lentegeur, Eastridge,
+Rocklands clinic and return",,1600.0,8.0,12800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Parow,
+Ravensmead, Ruyterwacht,
+Ravensmead, Langa, Gugulethu,
+Lansdowne and return",,2200.0,10.0,22000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bvl to Karl Bremmer Reed Street, St Vincent, Kasselsvlei,
+Scottsdene clinic and return",,2200.0,10.0,22000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"2024-Bellville Campus to New
+Somerset, Mowbray, D6 CHC and
+return",,1200.0,15.0,18000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl to Stellenbosch Hospital and return,,3400.0,8.0,27200.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,"Bvl Campus to Gugulethu via Elsiesriver
+and back",,1400.0,29.0,40600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,"Bvl Campus to Groote Schuur via
+Pinelands, Mowbray, Red Cross and
+return",,1800.0,21.0,37800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Khayelitsha District hospital and return,,850.0,24.0,20400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Kraaifontein & Tygerberg and return,,1400.0,31.0,43400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Eersteriver and return,,850.0,17.0,14450.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Mitchell's Plain and return,,850.0,17.0,14450.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bellville Campus to Gugulethu via Elsiesriver and back,,1400.0,26.0,36400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,"Bvl to to Groote Schuur via Pinelands,
+Mowbray, Red Cross and return",,1800.0,23.0,41400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Khayelitsha District hospital and return,,850.0,23.0,19550.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,"Bvl to Kraaifontein & Tygerberg
+and return",,1400.0,31.0,43400.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Eersteriver and return,,850.0,13.0,11050.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Dems,,Bvl to Mitchell's Plain and return,,850.0,23.0,19550.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl to Karl Bremmer via TBH,,980.0,5.0,4900.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl to Khayelitsha and Mitchell's Plain,,1200.0,5.0,6000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl to Stellenbosch Hospital and return,,3400.0,5.0,17000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus toMitchell's Plain, Michael M, Site B,Kuyasa, Nolungile, Lentegeur clinicsand return",,1600.0,10.0,16000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"BellvilleCampus to Langa, Vanguard,Lansdowne, Retreat, Lady Michaelisand return",,1600.0,10.0,16000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to St Vincent,Parow, Ravensmead and return",,980.0,10.0,9800.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus toMitchell's Plain MOU, Michael MCHC, Site B MOU, Rocklands clinic,Lentegeur clinic & hospital andreturn",,1600.0,10.0,16000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Fairmead PlaceCPOA, Anchusa CPOA, AvondrustCPOA, Lotus River CPOA, RetreatMOU and return",,1600.0,10.0,16000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"BellvilleCampus to Vanguard CHC,Elsiesriver MOU, Lansdowne clinic,Nyanga CHC, Gugulethu MOU,Erica Place CPOA and return",,1200.0,10.0,12000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus toSymphony CHC, Kasselsvlei CHC,Scottsdene clinic, Kraaifontein CHCand return",,1400.0,10.0,14000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus toStrand CHC, Macassar MOU &Gustrow CHC and return",,2600.0,10.0,26000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl campus to Cape Town airport and return,,1850.0,2.0,3700.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl campus to GSH via Red Cross and return,,3600.0,1.0,3600.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"BellvilleCampus to Red Cross & GrooteSchuur hospitals, Green Point CHC,Sea Point CPOA and return",,1400.0,15.0,21000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,Bvl campus to Stellenbosh Hosp and return,,3400.0,5.0,17000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,"Bellville Campus to Tygerberghospital, Pinelands CPOA, ManorCare CPOA and return",,1400.0,15.0,21000.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,,BellvilleCampus to Red Cross & GrooteSchuur hospitals and return,,980.0,8.0,7840.0,FHWS_ Transport requests AY2024_19 Aug 2024 (1).xlsx,Sheet1
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO KARL BREMER AND TYGERBERG HOSPITAL, PAROW CHC, SYMPHONY CDC, RAVENSMEAD CHC, ELSIES RIVER CLINIC, GOODWOOD CHC 7-Seater",7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO EERSTE RIVER HOSPITAL, MACASSAR MOU, IKHWEZI CHC 7-Seater",7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,CPUT BELLVILLE CAMPUS TO PAARL HOSPITAL 7-Seater,7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO MOWBRAY HOSPITAL, NEW SOMERSET HOSPITAL 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO MITCHELL’S PLAIN DISTRICT HOSPITAL, SITE B MOU, MICHAEL MPONGWANA MOU, NOLUNGILE CHC 7-Seater",7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO RETREAT CHC, LOTUS RIVER CHC, LANDSDOWNE CLINIC, LANGA CHC 7-Seater",7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,23-27/03/2026,"CPUT BELLVILLE CAMPUS TO ST VINCENT CHC, KASSELSVLEI CHC, VANGUARD MOU 7-Seater",7-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,15,"CPUT BELLVILLE CAMPUS TO CAPE TOWN INTERNATIONAL AIRPORT, CAPE TOWN INTERNATIONAL AIRPORT TO CPUT BELLVILLE CAMPUS 22-Seater plus trailer",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing March
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO KARL BREMER AND TYGERBERG HOSPITAL, PAROW CHC, SYMPHONY CDC, RAVENSMEAD CHC, ELSIES RIVER CLINIC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO EERSTE RIVER HOSPITAL, HELDERBERG HOSPITAL, MACASSAR MOU, IKHWEZI CHC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,CPUT BELLVILLE CAMPUS TO PAARL HOSPITAL 13-Seater,13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO MOWBRAY HOSPITAL, GROOTE SCHUUR HOSPITAL *28/04/2026- AN EAXTRA 60 SEATER BUS IS NEEDED- 1ST YEAR STUDENTS WILL BE ORIENTATED AT GSH 07H00- 15H00 22-Seater",60-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,CPUT BELLVILLE CAMPUS TO NEW SOMERSET HOSPITAL 13-Seater,13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO MITCHELL’S PLAIN DISTRICT HOSPITAL, SITE B MOU, MICHAEL MPONGWANA MOU, NOLUNGILE CHC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO VICTORIA HOSPITAL, LADY MICHAELIS CHC, RETREAT CHC, GRASSY PARK CHC, LOTUS RIVER CHC, LANDSDOWNE CLINIC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,"CPUT BELLVILLE CAMPUS TO VANGUARD CHC, LANGA CHC, HEIDEVELD CLINIC, NYANGA CHC, GUGULETHU CLINIC AND CHC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,07-10/04/2026,CPUT BELLVILLE CAMPUS TO STELLENBOSCH HOSPITAL 13-Seater,13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,19,"CPUT BELLVILLE CAMPUS TO CAPE TOWN INTERNATIONAL AIRPORT, CAPE TOWN INTERNATIONAL AIRPORT TO CPUT BELLVILLE CAMPUS 22-Seater plus trailer",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing April
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO KARL BREMER AND TYGERBERG HOSPITAL, PAROW CHC, SYMPHONY CDC, RAVENSMEAD CHC, ELSIES RIVER CLINIC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO EERSTE RIVER HOSPITAL, HELDERBERG HOSPITAL, MACASSAR MOU, IKHWEZI CHC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,CPUT BELLVILLE CAMPUS TO PAARL HOSPITAL 13-Seater,13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO MOWBRAY HOSPITAL, GROOTE SCHUUR HOSPITAL 22-Seater",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO NEW SOMERSET HOSPITAL, SEA POINT CPOA 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO MITCHELL’S PLAIN DISTRICT HOSPITAL, LENTEGEUR PSYCHIATRIC HOSPITAL, ROCKLANDS CLINIC, LENTEGEUR CLINIC, EASTRIDGE CLINIC, WESTERN CAPE REHABILITATION CENTRE 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO VICTORIA HOSPITAL, LADY MICHAELIS CHC, RETREAT CHC, GRASSY PARK CHC, LOTUS RIVER CHC, LANDSDOWNE CLINIC, ANCHUSA CPOA, AVONDRUST CPOA, LOTUS RIVER CPOA 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO VANGUARD CHC, LANGA CHC, HEIDEVELD CLINIC, NYANGA CHC, GUGULETHU CLINIC AND CHC, ERICA PLACE CPOA 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,CPUT BELLVILLE CAMPUS TO STELLENBOSCH HOSPITAL 13-Seater,13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,04-8/05/2026,"CPUT BELLVILLE CAMPUS TO KHAYELITSHA DISTRICT HOSPITAL, SITE B MOU, MICHAEL MPONGWANA MOU, NOLUNGILE CHC, KUYASA CLINIC 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,25-29/05/2026,"CPUT BELLVILLE CAMPUS TO PINELANDS PLACE, MANOR CARE CPOA, ALEXANDRA HOSPITAL 13-Seater",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing May
+Nursing,01 to 05,"GUGULETHU CHC, VANGUARD CHC, VANGUARD MOU, GUGULETHU MOU,HANOVER PARK CHC, ELSIES RIVER CHC & MOU",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"TBH,KBH",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"MICHAELMPONGWANA MOU, SITE BKHAYELITSHA MOU,MITCHELL’S PLAIN CHC & MOU, MITCHELL'S PLAIN DISTRICT HOSPITAL, KHAYELITSHA DISTRICT HOSPITAL",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"MACASSAR CHC, KUYASACLINIC, NYANGA CHC, PAROW CHC",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"MICHAELMPONGWANA MOU, SITE BKHAYELITSHA MOU,MITCHELL’S PLAIN MOU, VANGUARD MOU, ELSIES RIVER MOU, GUGULETHU MOU, RETREAT MOU",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"MOWBRAY MATERNITY HOSPITAL, RETREATCHC, RETREATMOU",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"PINELANDS PLACE, MANOR CARE CPOA, SEA POINT CPOA",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"ANCHUSA CPOA, AVONDRUST CPOA, ERICA PLACE CPOA, LOTUS RIVER CPOA",22-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,01 to 05,"MOWBRAY MATERNITY , RED CROSS WAR MEMORIAL CHILDRENS HOSPITAL",13-seater,,,,Transport bookings_Term S1 of 2026_MITS_DEMS_Nursing (1).xlsx,Nursing June
+Nursing,Week 1 (Oct 27–31),Stellenbosch Hospital,13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),"Helderberg, Eerste River, Macassar MOU",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),"Valkenberg, Alexander, Vanguard, Langa, Landsdowne",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),"Victoria, Lady Michaelis, Lotus River, Retreat",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),TBH and KBH,13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),"Michael Mpongwana, Site B Khayelitsha, Kuyasa, Nolungile, Lentegeur, Eastridge, Rocklands",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 1 (Oct 27–31),"Goodwood, Parow, Ravensmead, Ruyterwacht, Reed St, Kasselsvlei, Symphony, St Vincent",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),Stellenbosch Hospital,13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),"Helderberg, Eerste River, Macassar MOU",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),"Valkenberg, Alexander, Vanguard, Langa, Landsdowne",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),"Victoria, Lady Michaelis, Lotus River, Retreat",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),TBH and KBH,13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),"Michael Mpongwana, Site B Khayelitsha, Kuyasa, Nolungile, Lentegeur, Eastridge, Rocklands",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Nursing,Week 2 (Nov 3–7),"Goodwood, Parow, Ravensmead, Ruyterwacht, Reed St, Kasselsvlei, Symphony, St Vincent",13-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,27 Oct – 31 Oct 2025,Paarl Provincial Hospital,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,27 Oct – 31 Oct 2025,Bishop Lavis Day Hospital,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,27 Oct – 31 Oct 2025,Karl Bremer Hospital,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,27 Oct – 31 Oct 2025,Mitchells Plain/Khayelitsha,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,03 Nov – 07 Nov 2025,Paarl Provincial Hospital,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,03 Nov – 07 Nov 2025,Delft CHC,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,03 Nov – 07 Nov 2025,Karl Bremer Hospital,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Mits,03 Nov – 07 Nov 2025,Mitchells Plain/Khayelitsha,7-seater,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Dems,Semester 2,5,,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Dems,,Gugulethu Total,Khayelitsha Total,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Dems,2025-10-25 00:00:00,1,,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Dems,2025-10-31 00:00:00,1,1,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
+Dems,Grand Total,2,4,,,,Example weekly_transport_summary_end Oct_Nov2025 (1).xlsx,Sheet1
