@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import math
 
 # ============================================================
 # Page config
@@ -33,7 +34,7 @@ st.caption("Faculty of Health and Wellness Sciences · CPUT")
 
 st.sidebar.header("Filters")
 departments = ["All"] + sorted(trips["department"].dropna().unique().tolist())
-sel_dept = st.sidebar.selectbox("Department", departments)
+sel_dept = st.sidebar.selectbox("Department (For Analysis Tabs)", departments)
 
 filtered = trips.copy()
 if sel_dept != "All":
@@ -42,8 +43,8 @@ if sel_dept != "All":
 # ============================================================
 # Tabs
 # ============================================================
-tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_planner = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🗺️ Route Planner"]
+tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator = st.tabs(
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🧮 Strategy Simulator"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -136,8 +137,6 @@ with tab_bus:
     hist_df["Students per Trip"] = hist_df["Students per Trip"].astype(str)
     st.dataframe(hist_df, use_container_width=True)
 
-    st.info("**Insight:** If most trips carry fewer than 5 students, the faculty may be over-provisioning larger buses. Consider downshifting to 7-seaters where load permits.")
-
 # ---------------- TAB 5: NURSING ----------------
 with tab_nursing:
     st.subheader("Nursing Department: Cluster Routes")
@@ -154,43 +153,81 @@ with tab_nursing:
         st.markdown("### Detailed Nursing Routes")
         nursing_display = nursing_data[["week", "route_description", "bus_size"]].dropna()
         st.dataframe(nursing_display, use_container_width=True)
-    else:
-        st.write("No Nursing data available.")
 
-# ---------------- TAB 6: ROUTE PLANNER ----------------
-with tab_planner:
-    st.subheader("Student Transport Route Planner")
-    st.info("Simulate a booking by selecting a clinical site. The dashboard will suggest historical routes, times, and bus sizes based on previous trips.")
+# ---------------- TAB 6: STRATEGY SIMULATOR ----------------
+with tab_simulator:
+    st.subheader("🧮 Transport Strategy Simulator")
+    st.markdown("Use this tool to simulate the transport requirements for upcoming clinical placements. Select multiple hospitals and enter the number of students from each department.")
     
+    # 1. Select multiple hospitals
     all_sites = sorted(trips["site"].dropna().unique().tolist())
-    selected_site = st.selectbox("Select a Clinical Site:", all_sites)
+    selected_sites = st.multiselect(
+        "1. Select the Clinical Sites for this placement:", 
+        options=all_sites,
+        default=[all_sites[0]] if all_sites else []
+    )
     
-    if selected_site:
-        site_data = trips[trips["site"] == selected_site]
-        
-        st.markdown(f"### Planning for: **{selected_site}**")
-        
-        c1, c2 = st.columns(2)
-        
-        with c1:
-            st.markdown("#### 📍 Route Details")
-            st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
-            st.write("**Pick-up Point:** CPUT Bellville Campus")
-            
-        with c2:
-            st.markdown("#### ⏰ Timing Details")
-            st.write("**Typical Departure:** 06:00 (Estimated)")
-            st.write("**Typical Return:** 16:00 (Estimated)")
-
+    # 2. Select student numbers
+    st.markdown("### 2. Enter Student Numbers")
+    col1, col2, col3 = st.columns(3)
+    dems_students = col1.number_input("DEMS Students", min_value=0, value=5)
+    mits_students = col2.number_input("MITS Students", min_value=0, value=5)
+    nursing_students = col3.number_input("Nursing Students", min_value=0, value=5)
+    
+    total_students = dems_students + mits_students + nursing_students
+    
+    # 3. Calculation Logic
+    if selected_sites and total_students > 0:
         st.markdown("---")
-        st.markdown("#### 🚐 Available Bus & Capacity")
+        st.markdown("### 📊 Transport Simulation Results")
         
-        num_students = st.number_input("Number of students requiring transport:", min_value=1, max_value=50, value=5)
-        st.success(f"A **13-seater bus** is recommended. It can accommodate **{num_students} students** and has **{13 - num_students} seats remaining** for consolidation.")
+        # Current fragmented approach (Assuming each dept books separately)
+        current_buses = 0
+        if dems_students > 0: current_buses += math.ceil(dems_students / 13)
+        if mits_students > 0: current_buses += math.ceil(mits_students / 7)
+        if nursing_students > 0: current_buses += math.ceil(nursing_students / 22)
         
-        with st.expander("View Historical Trips to this Site"):
-            st.dataframe(site_data[["date", "num_students", "department"]].sort_values("date", ascending=False).head(10), use_container_width=True)
-
+        # Optimized approach (All depts share buses)
+        # We use 22-seaters and 13-seaters. Let's find the most efficient combo.
+        optimized_buses_22 = total_students // 22
+        remainder = total_students % 22
+        optimized_buses_13 = math.ceil(remainder / 13) if remainder > 0 else 0
+        total_optimized_buses = optimized_buses_22 + optimized_buses_13
+        
+        # Cost calculation
+        median_cost = 1200 # Base cost per trip
+        weeks = 3
+        days_per_week = 5 # Assuming Mon-Fri
+        total_days = weeks * days_per_week
+        
+        current_total_cost = current_buses * median_cost * total_days
+        optimized_total_cost = total_optimized_buses * median_cost * total_days
+        total_savings = current_total_cost - optimized_total_cost
+        
+        # Display Results
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Total Students", total_students)
+        c2.metric("Current Buses Needed", current_buses, help="If each department books separately without sharing.")
+        c3.metric("Optimized Buses Needed", total_optimized_buses, help="If all departments share buses based on capacity.")
+        
+        st.markdown(f"#### 💰 Financial Impact over {weeks} Weeks")
+        st.markdown(f"Based on {total_days} travel days and an estimated cost of R {median_cost} per bus trip.")
+        
+        c4, c5, c6 = st.columns(3)
+        c4.metric("Cost (Current)", f"R {current_total_cost:,.0f}")
+        c5.metric("Cost (Optimized)", f"R {optimized_total_cost:,.0f}")
+        c6.metric("Total Savings", f"R {total_savings:,.0f}", delta=f"R {total_savings:,.0f}", delta_color="normal")
+        
+        # Breakdown Table
+        st.markdown("### 🚐 Proposed Bus Breakdown")
+        breakdown_data = {
+            "Bus Type": ["22-Seater", "13-Seater"],
+            "Quantity": [optimized_buses_22, optimized_buses_13]
+        }
+        st.table(pd.DataFrame(breakdown_data))
+        
+        st.success(f"By consolidating transport across departments to these {len(selected_sites)} sites, you save **R {total_savings:,.0f}** over 3 weeks by eliminating **{current_buses - total_optimized_buses} unnecessary trips**.")
+        
 # Footer
 st.markdown("---")
-st.caption("Built by Masiu Thabang and Mbalentle Mgingqizana · Faculty of Applied Sciences · CPUT")
+st.caption("Built by Masiu Thabang and Mbalentine Mgingqizana · Faculty of Applied Sciences · CPUT")
