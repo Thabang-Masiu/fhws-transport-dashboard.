@@ -46,7 +46,7 @@ if sel_dept != "All":
 # Tabs
 # ============================================================
 tab_overview, tab_consolidation, tab_costs, tab_bus = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization"]
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "Nursing Routes"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -141,7 +141,27 @@ with tab_bus:
     st.dataframe(hist_df, use_container_width=True)
 
     st.info("**Insight:** If most trips carry fewer than 5 students, the faculty may be over-provisioning larger buses. Consider downshifting to 7-seaters where load permits.")
-
+# ---------------- TAB 5: NURSING ----------------
+with tab_nursing:
+    st.subheader("Nursing Department: Cluster Routes")
+    st.info("Nursing operates on a weekly 'Cluster' model, covering multiple sites per bus. This data is sourced from the route schedules.")
+    
+    nursing_data = costs[costs["department"] == "Nursing"].copy()
+    
+    if not nursing_data.empty:
+        # 1. Bus Size Breakdown
+        st.markdown("### Bus Size Utilization")
+        bus_counts = nursing_data["bus_size"].value_counts().reset_index()
+        bus_counts.columns = ["Bus Size", "Number of Routes"]
+        st.dataframe(bus_counts, use_container_width=True)
+        
+        # 2. Route Breakdown
+        st.markdown("### Detailed Nursing Routes")
+        # Clean up the weeks and routes for display
+        nursing_display = nursing_data[["week", "route_description", "bus_size"]].dropna()
+        st.dataframe(nursing_display, use_container_width=True)
+    else:
+        st.write("No Nursing data available.")
 # Footer
 st.markdown("---")
 st.caption("Built by Masiu Thabang and Mbalentle Mgingqizana · Faculty of Applied Sciences · CPUT")
