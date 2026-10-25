@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import math
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 
 # ============================================================
 # Page config
@@ -24,6 +24,7 @@ def load_data():
 
 trips, costs = load_data()
 trips["month"] = trips["date"].dt.to_period("M").astype(str)
+trips["weekday"] = trips["date"].dt.day_name()
 
 if "private_bookings" not in st.session_state:
     st.session_state.private_bookings = pd.DataFrame()
@@ -35,10 +36,10 @@ st.title("🚌 FHWS Transport Management System")
 st.caption("Faculty of Health and Wellness Sciences · Secure Operations Hub")
 
 # ============================================================
-# Tabs (Added AI Predictor)
+# Tabs
 # ============================================================
-tab_overview, tab_ai, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking = st.tabs(
-    ["📊 Overview", "🔮 AI Predictor", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "🔒 Secure Booking"]
+tab_overview, tab_analysis, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking = st.tabs(
+    ["📊 Overview", "📈 Visual Analysis", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "🔒 Secure Booking"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -53,69 +54,31 @@ with tab_overview:
     monthly = trips.groupby(["month", "department"], as_index=False).agg(trips=("date", "count"))
     st.bar_chart(monthly.pivot(index="month", columns="department", values="trips").fillna(0))
 
-# ---------------- TAB 2: AI PREDICTOR ----------------
-with tab_ai:
-    st.subheader("🔮 AI Transport Demand Forecaster")
-    st.markdown("This Machine Learning model analyzes historical trip patterns to predict the transport demand for the upcoming month. It automatically calculates the **Bus Fleet Requirement** for the future.")
+# ---------------- TAB 2: VISUAL ANALYSIS ----------------
+with tab_analysis:
+    st.subheader("📈 Data Analysis & Trends")
+    st.markdown("This tab provides visual evidence of the transport inefficiencies discovered in the raw data.")
     
-    # 1. Prepare the data
-    # Group by date to get total students per day
-    daily_demand = trips.groupby("date")["num_students"].sum().reset_index()
-    daily_demand = daily_demand.sort_values("date")
+    st.markdown("### 1. Bus Size Over-Provisioning")
+    st.markdown("This histogram shows the number of students on each trip. The vast majority of trips carry only 1 to 3 students, meaning the faculty is paying for 13-seater and 22-seater buses that are driving around mostly empty.")
     
-    # Calculate a 7-day Moving Average (Smooths out weekend spikes to find the trend)
-    daily_demand["7_Day_Trend"] = daily_demand["num_students"].rolling(window=7, min_periods=1).mean()
+    # Streamlit built-in histogram using the num_students column
+    hist_values = pd.cut(trips['num_students'], bins=[0,1,2,3,5,10,15,22,50])
+    hist_df = hist_values.value_counts().sort_index().reset_index()
+    hist_df.columns = ["Students on Bus", "Number of Trips"]
+    hist_df["Students on Bus"] = hist_df["Students on Bus"].astype(str)
+    st.bar_chart(hist_df.set_index("Students on Bus"))
     
-    # 2. Predict the NEXT 14 days
-    latest_date = daily_demand["date"].max()
-    last_trend_value = daily_demand["7_Day_Trend"].iloc[-1]
+    st.markdown("---")
     
-    # Generate future dates (14 days)
-    future_dates = [latest_date + timedelta(days=i) for i in range(1, 15)]
+    st.markdown("### 2. Trip Volume by Day of Week")
+    st.markdown("This analysis reveals that **Friday, Saturday, and Sunday** are the busiest days for transport, driven heavily by DEMS night duty and weekend shifts.")
     
-    # Simulate predictions with slight random variance based on trend
-    import random
-    future_predictions = []
-    for i in range(14):
-        # Prediction = Last Trend + Small Random Variance (simulating AI)
-        pred = last_trend_value * random.uniform(0.95, 1.05) 
-        future_predictions.append(pred)
-    
-    # Create a forecast dataframe
-    forecast_df = pd.DataFrame({
-        "Date": future_dates,
-        "Predicted Students": [round(p) for p in future_predictions]
-    })
-    
-    # 3. Display the Visuals
-    st.markdown("### 📈 Historical Demand vs. AI Forecast")
-    
-    # Combine actual and predicted for the chart
-    chart_data = daily_demand[["date", "num_students"]].tail(30).rename(columns={"date": "Date", "num_students": "Actual Students"})
-    chart_data = chart_data.set_index("Date")
-    
-    forecast_chart = forecast_df.rename(columns={"Date": "Date"}).set_index("Date")
-    
-    # Show the chart
-    st.line_chart(pd.concat([chart_data, forecast_chart]).fillna(0))
-    
-    st.markdown("### 📅 Next 14 Days: AI Transport Dispatch Plan")
-    st.info("Based on the forecast, here is the exact number of buses the department needs to pre-book with the service provider.")
-    
-    # 4. Calculate Buses Needed based on AI
-    forecast_df["Est. Buses Required"] = forecast_df["Predicted Students"].apply(lambda x: math.ceil(x / 22))
-    
-    st.dataframe(forecast_df, use_container_width=True)
-    
-    # 5. Financial Forecast
-    total_predicted_students = forecast_df["Predicted Students"].sum()
-    total_buses = forecast_df["Est. Buses Required"].sum()
-    total_cost = total_buses * 1200
-    
-    f1, f2, f3 = st.columns(3)
-    f1.metric("Predicted Students (14 Days)", total_predicted_students)
-    f2.metric("Buses to Pre-Book", total_buses)
-    f3.metric("Pre-Booking Cost Estimate", f"R {total_cost:,.0f}")
+    weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    weekday_counts = trips.groupby("weekday").size().reset_index(name="Trips")
+    weekday_counts["weekday"] = pd.Categorical(weekday_counts["weekday"], categories=weekday_order, ordered=True)
+    weekday_counts = weekday_counts.sort_values("weekday")
+    st.bar_chart(weekday_counts.set_index("weekday"))
 
 # ---------------- TAB 3: CONSOLIDATION ----------------
 with tab_consolidation:
