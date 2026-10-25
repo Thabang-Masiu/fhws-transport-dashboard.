@@ -48,7 +48,7 @@ if sel_dept != "All":
     filtered = filtered[filtered["department"] == sel_dept]
 
 # ============================================================
-# Tabs (Added Booking History)
+# Tabs
 # ============================================================
 tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking, tab_history = st.tabs(
     ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "➕ Live Booking Engine", "📋 Booking History"]
@@ -179,7 +179,6 @@ with tab_booking:
             "cost_per_unit": 1200 if existing.empty else 0,
             "units": 1,
             "total_cost": 1200 if existing.empty else 0,
-            "tsqt_number": "LIVE-BOOKING",
             "source_file": "live_system.csv",
             "source_sheet": "form"
         }])
@@ -194,7 +193,7 @@ with tab_history:
     st.markdown("This is a permanent log of all transport requests made through the Live Booking Engine.")
     
     # Filter ONLY for the live bookings we made using the system
-    live_bookings = trips[trips["tsqt_number"] == "LIVE-BOOKING"].copy()
+    live_bookings = trips[trips["source_file"] == "live_system.csv"].copy()
     
     if live_bookings.empty:
         st.info("No live bookings have been made yet. Go to the 'Live Booking Engine' tab to make your first booking.")
@@ -207,7 +206,7 @@ with tab_history:
         
         # Format the date and cost columns
         display_df["date"] = display_df["date"].dt.strftime('%Y-%m-%d')
-        display_df["total_cost"] = display_df["total_cost"].apply(lambda x: f"R {x:,.0f}")
+        display_df["total_cost"] = display_df["total_cost"].apply(lambda x: f"R {x:,.0f}" if pd.notna(x) else "R 0")
         
         st.dataframe(display_df, use_container_width=True)
         
