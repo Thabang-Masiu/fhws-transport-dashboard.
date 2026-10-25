@@ -45,8 +45,8 @@ if sel_dept != "All":
 # ============================================================
 # Tabs
 # ============================================================
-tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "Nursing Routes"]
+tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_planner = st.tabs(
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "Nursing Routes", "🗺️ Route Planner"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -162,6 +162,68 @@ with tab_nursing:
         st.dataframe(nursing_display, use_container_width=True)
     else:
         st.write("No Nursing data available.")
+# ---------------- TAB 6: ROUTE PLANNER ----------------
+with tab_planner:
+    st.subheader("Student Transport Route Planner")
+    st.info("Simulate a booking by selecting a clinical site. The dashboard will suggest historical routes, times, and bus sizes based on previous trips.")
+    
+    # Get a list of all unique sites we have data for
+    all_sites = sorted(trips["site"].dropna().unique().tolist())
+    
+    # Dropdown for the user to select a hospital
+    selected_site = st.selectbox("Select a Clinical Site:", all_sites)
+    
+    if selected_site:
+        # Filter historical data for this site
+        site_data = trips[trips["site"] == selected_site]
+        
+        st.markdown(f"### Planning for: **{selected_site}**")
+        
+        c1, c2 = st.columns(2)
+        
+        with c1:
+            st.markdown("#### 📍 Route Details")
+            # Find the most common route description (if available)
+            route_desc = site_data["route_description"].mode()
+            if not route_desc.empty and pd.notna(route_desc[0]):
+                st.write(f"**Historical Route:** {route_desc[0]}")
+            else:
+                st.write(f"**Historical Route:** CPUT Bellville Campus to {selected_site}")
+            
+            # Show the most common pick-up point
+            pickup = site_data["pickup_point"].mode()
+            pickup_text = pickup[0] if not pickup.empty and pd.notna(pickup[0]) else "CPUT Bellville Campus"
+            st.write(f"**Pick-up Point:** {pickup_text}")
+
+        with c2:
+            st.markdown("#### ⏰ Timing Details")
+            # Show most common pick up and return times
+            times = site_data[["pickup_time", "collection_time"]].dropna()
+            if not times.empty:
+                st.write(f"**Typical Departure:** {times['pickup_time'].mode()[0]}")
+                st.write(f"**Typical Return:** {times['collection_time'].mode()[0]}")
+            else:
+                st.write("**Typical Departure:** 06:00 (Estimated)")
+                st.write("**Typical Return:** 16:00 (Estimated)")
+
+        st.markdown("---")
+        st.markdown("#### 🚐 Available Bus & Capacity")
+        
+        # Show the bus sizes used for this site historically
+        buses_used = site_data["bus_size"].dropna().unique()
+        if len(buses_used) > 0:
+            st.write(f"**Buses typically assigned to this route:** {', '.join(buses_used)}")
+        else:
+            st.write("**Buses typically assigned to this route:** 7-seater or 13-seater (Standard)")
+            
+        # Number of students input to calculate remaining capacity
+        num_students = st.number_input("Number of students requiring transport:", min_value=1, max_value=50, value=5)
+        
+        st.success(f"A **13-seater bus** is recommended. It can accommodate **{num_students} students** and has **{13 - num_students} seats remaining** for consolidation.")
+        
+        # Optional: Show a mini map or a table of other students going there today
+        with st.expander("View Historical Trips to this Site"):
+            st.dataframe(site_data[["date", "num_students", "department"]].sort_values("date", ascending=False).head(10), use_container_width=True)
 # Footer
 st.markdown("---")
 st.caption("Built by Masiu Thabang and Mbalentle Mgingqizana · Faculty of Applied Sciences · CPUT")
