@@ -30,7 +30,7 @@ if "private_bookings" not in st.session_state:
     st.session_state.private_bookings = pd.DataFrame()
 
 # ============================================================
-# Header & Sidebar
+# Header
 # ============================================================
 st.title("🚌 FHWS Transport Management System")
 st.caption("Faculty of Health and Wellness Sciences · Secure Operations Hub")
@@ -50,35 +50,24 @@ with tab_overview:
     c2.metric("Students Transported", f"{int(trips['num_students'].sum()):,}")
     c3.metric("Unique Sites", f"{trips['site'].nunique()}")
     c4.metric("Avg Students/Trip", f"{trips['num_students'].mean():.2f}")
-    
     monthly = trips.groupby(["month", "department"], as_index=False).agg(trips=("date", "count"))
     st.bar_chart(monthly.pivot(index="month", columns="department", values="trips").fillna(0))
 
 # ---------------- TAB 2: VISUAL ANALYSIS ----------------
 with tab_analysis:
     st.subheader("📈 Data Analysis & Trends")
-    st.markdown("This tab provides visual evidence of the transport inefficiencies discovered in the raw data.")
-    
     st.markdown("### 1. Bus Size Over-Provisioning")
-    st.markdown("This histogram shows the number of students on each trip. The vast majority of trips carry only 1 to 3 students, meaning the faculty is paying for 13-seater and 22-seater buses that are driving around mostly empty.")
-    
-    # Streamlit built-in histogram using the num_students column
     hist_values = pd.cut(trips['num_students'], bins=[0,1,2,3,5,10,15,22,50])
     hist_df = hist_values.value_counts().sort_index().reset_index()
     hist_df.columns = ["Students on Bus", "Number of Trips"]
     hist_df["Students on Bus"] = hist_df["Students on Bus"].astype(str)
     st.bar_chart(hist_df.set_index("Students on Bus"))
     
-    st.markdown("---")
-    
     st.markdown("### 2. Trip Volume by Day of Week")
-    st.markdown("This analysis reveals that **Friday, Saturday, and Sunday** are the busiest days for transport, driven heavily by DEMS night duty and weekend shifts.")
-    
     weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     weekday_counts = trips.groupby("weekday").size().reset_index(name="Trips")
     weekday_counts["weekday"] = pd.Categorical(weekday_counts["weekday"], categories=weekday_order, ordered=True)
-    weekday_counts = weekday_counts.sort_values("weekday")
-    st.bar_chart(weekday_counts.set_index("weekday"))
+    st.bar_chart(weekday_counts.sort_values("weekday").set_index("weekday"))
 
 # ---------------- TAB 3: CONSOLIDATION ----------------
 with tab_consolidation:
@@ -111,19 +100,31 @@ with tab_nursing:
     if not nursing_data.empty:
         st.dataframe(nursing_data["bus_size"].value_counts().reset_index(), use_container_width=True)
 
-# ---------------- TAB 7: AUTO-PLANNER ----------------
+# ---------------- TAB 7: AUTO-PLANNER (WITH CUSTOM TIMES) ----------------
 with tab_simulator:
     st.subheader("🤖 Auto-Generate Transport Dispatch Plan")
-    col1, col2 = st.columns(2)
-    with col1:
-        all_sites = sorted(trips["site"].dropna().unique().tolist())
-        selected_sites = st.multiselect("1. Select Clinical Sites:", options=all_sites, default=[all_sites[0]] if all_sites else [])
-    with col2:
-        dems_students = st.number_input("DEMS Students", min_value=0, value=10)
-        mits_students = st.number_input("MITS Students", min_value=0, value=5)
-        nursing_students = st.number_input("Nursing Students", min_value=0, value=8)
     
+    # 1. Student Inputs
+    st.markdown("### 1. Enter Student Numbers")
+    col1, col2, col3 = st.columns(3)
+    dems_students = col1.number_input("DEMS Students", min_value=0, value=10)
+    mits_students = col2.number_input("MITS Students", min_value=0, value=5)
+    nursing_students = col3.number_input("Nursing Students", min_value=0, value=8)
     total_students = dems_students + mits_students + nursing_students
+
+    # 2. Custom Time Inputs
+    st.markdown("### 2. Set Custom Departure & Return Times")
+    st.info("Override the historical times with the specific schedule for this trip.")
+    t_col1, t_col2 = st.columns(2)
+    custom_pickup = t_col1.text_input("Pickup Time", "06:30")
+    custom_return = t_col2.text_input("Return Time", "16:00")
+
+    # 3. Site Selection
+    st.markdown("### 3. Select Clinical Sites")
+    all_sites = sorted(trips["site"].dropna().unique().tolist())
+    selected_sites = st.multiselect("Select Sites:", options=all_sites, default=[all_sites[0]] if all_sites else [])
+    
+    # 4. Generation
     if selected_sites and total_students > 0:
         optimized_buses_22 = total_students // 22
         remainder = total_students % 22
@@ -132,16 +133,24 @@ with tab_simulator:
         
         plan_data = []
         students_per_site = math.ceil(total_students / len(selected_sites))
+        
         for site in selected_sites:
-            site_data = trips[trips["site"] == site]
-            p_time = site_data["pickup_time"].dropna().mode()[0] if not site_data["pickup_time"].dropna().empty else "06:30"
-            d_time = site_data["collection_time"].dropna().mode()[0] if not site_data["collection_time"].dropna().empty else "16:00"
-            plan_data.append({"Destination": site, "Pickup Time": p_time, "Return Time": d_time, "Est. Students": students_per_site})
+            # We now use the CUSTOM times instead of the historical times
+            plan_data.append({
+                "Destination": site, 
+                "Pickup Time": custom_pickup, 
+                "Return Time": custom_return, 
+                "Est. Students": students_per_site
+            })
             
         dispatch_df = pd.DataFrame(plan_data)
+        
+        st.markdown("---")
         st.success(f"✅ **Plan Generated!** {total_students} students require **{total_optimized_buses} buses**.")
         st.dataframe(dispatch_df, use_container_width=True)
-        st.download_button("📥 Download Dispatch Sheet", dispatch_df.to_csv(index=False).encode('utf-8'), "Dispatch_Plan.csv", "text/csv")
+        
+        csv = dispatch_df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download Dispatch Sheet", csv, "Dispatch_Plan.csv", "text/csv")
 
 # ---------------- TAB 8: SECURE BOOKING ----------------
 with tab_booking:
