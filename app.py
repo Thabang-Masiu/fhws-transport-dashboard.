@@ -60,7 +60,6 @@ with tab_overview:
     st.markdown("### Trips per Month by Department")
     monthly = filtered.groupby(["month", "department"], as_index=False).agg(
         trips=("date", "count"))
-    
     monthly_pivot = monthly.pivot(index="month", columns="department", values="trips").fillna(0)
     st.bar_chart(monthly_pivot)
 
@@ -113,9 +112,6 @@ with tab_costs:
         total_cost=("total_cost", "sum")).sort_values("total_cost", ascending=True).tail(10)
     st.bar_chart(top_routes.set_index("route_description")["total_cost"])
 
-    st.markdown("### Full Cost Table")
-    st.dataframe(costs_clean, use_container_width=True)
-
 # ---------------- TAB 4: BUS UTILIZATION ----------------
 with tab_bus:
     st.subheader("Bus Size Utilization")
@@ -140,24 +136,19 @@ with tab_bus:
 # ---------------- TAB 5: NURSING ----------------
 with tab_nursing:
     st.subheader("Nursing Department: Cluster Routes")
-    st.info("Nursing operates on a weekly 'Cluster' model, covering multiple sites per bus. This data is sourced from the route schedules.")
+    st.info("Nursing operates on a weekly 'Cluster' model, covering multiple sites per bus.")
     
     nursing_data = costs[costs["department"] == "Nursing"].copy()
     
     if not nursing_data.empty:
-        st.markdown("### Bus Size Utilization")
         bus_counts = nursing_data["bus_size"].value_counts().reset_index()
         bus_counts.columns = ["Bus Size", "Number of Routes"]
         st.dataframe(bus_counts, use_container_width=True)
-        
-        st.markdown("### Detailed Nursing Routes")
-        nursing_display = nursing_data[["week", "route_description", "bus_size"]].dropna()
-        st.dataframe(nursing_display, use_container_width=True)
 
 # ---------------- TAB 6: STRATEGY SIMULATOR ----------------
 with tab_simulator:
     st.subheader("🧮 Transport Strategy Simulator")
-    st.markdown("Use this tool to simulate the transport requirements for upcoming clinical placements. Select multiple hospitals and enter the number of students from each department.")
+    st.markdown("Simulate the transport requirements for upcoming clinical placements. See how consolidating departments saves buses and money.")
     
     # 1. Select multiple hospitals
     all_sites = sorted(trips["site"].dropna().unique().tolist())
@@ -181,14 +172,13 @@ with tab_simulator:
         st.markdown("---")
         st.markdown("### 📊 Transport Simulation Results")
         
-        # Current fragmented approach (Assuming each dept books separately)
+        # Current approach (each dept books separately)
         current_buses = 0
         if dems_students > 0: current_buses += math.ceil(dems_students / 13)
         if mits_students > 0: current_buses += math.ceil(mits_students / 7)
         if nursing_students > 0: current_buses += math.ceil(nursing_students / 22)
         
-        # Optimized approach (All depts share buses)
-        # We use 22-seaters and 13-seaters. Let's find the most efficient combo.
+        # Optimized approach (all depts share buses)
         optimized_buses_22 = total_students // 22
         remainder = total_students % 22
         optimized_buses_13 = math.ceil(remainder / 13) if remainder > 0 else 0
@@ -197,36 +187,54 @@ with tab_simulator:
         # Cost calculation
         median_cost = 1200 # Base cost per trip
         weeks = 3
-        days_per_week = 5 # Assuming Mon-Fri
-        total_days = weeks * days_per_week
-        
+        total_days = weeks * 5 # Mon-Fri
         current_total_cost = current_buses * median_cost * total_days
         optimized_total_cost = total_optimized_buses * median_cost * total_days
         total_savings = current_total_cost - optimized_total_cost
         
-        # Display Results
+        # Display KPIs
         c1, c2, c3 = st.columns(3)
         c1.metric("Total Students", total_students)
-        c2.metric("Current Buses Needed", current_buses, help="If each department books separately without sharing.")
-        c3.metric("Optimized Buses Needed", total_optimized_buses, help="If all departments share buses based on capacity.")
+        c2.metric("Current Buses Needed", current_buses)
+        c3.metric("Optimized Buses Needed", total_optimized_buses)
         
+        # --- VISUALS ---
+        st.markdown("### 📈 Visual Comparison")
+        v1, v2 = st.columns(2)
+        
+        with v1:
+            # Bar chart comparing bus counts
+            chart_data = pd.DataFrame({
+                "Scenario": ["Current (Fragmented)", "Optimized (Consolidated)"],
+                "Buses Required": [current_buses, total_optimized_buses]
+            }).set_index("Scenario")
+            st.bar_chart(chart_data)
+            st.caption("Bus Dispatched per Day")
+            
+        with v2:
+            # Pie chart comparing costs
+            cost_data = pd.DataFrame({
+                "Cost Type": ["Savings", "Remaining Cost"],
+                "Amount": [total_savings, optimized_total_cost]
+            }).set_index("Cost Type")
+            st.bar_chart(cost_data)
+            st.caption(f"Financial Breakdown over {weeks} weeks")
+            
+        # Financial KPIs
         st.markdown(f"#### 💰 Financial Impact over {weeks} Weeks")
         st.markdown(f"Based on {total_days} travel days and an estimated cost of R {median_cost} per bus trip.")
+        f1, f2, f3 = st.columns(3)
+        f1.metric("Cost (Current)", f"R {current_total_cost:,.0f}")
+        f2.metric("Cost (Optimized)", f"R {optimized_total_cost:,.0f}")
+        f3.metric("Total Savings", f"R {total_savings:,.0f}", delta=f"R {total_savings:,.0f}")
         
-        c4, c5, c6 = st.columns(3)
-        c4.metric("Cost (Current)", f"R {current_total_cost:,.0f}")
-        c5.metric("Cost (Optimized)", f"R {optimized_total_cost:,.0f}")
-        c6.metric("Total Savings", f"R {total_savings:,.0f}", delta=f"R {total_savings:,.0f}", delta_color="normal")
-        
-        # Breakdown Table
+        # Show breakdown table
         st.markdown("### 🚐 Proposed Bus Breakdown")
         breakdown_data = {
             "Bus Type": ["22-Seater", "13-Seater"],
             "Quantity": [optimized_buses_22, optimized_buses_13]
         }
         st.table(pd.DataFrame(breakdown_data))
-        
-        st.success(f"By consolidating transport across departments to these {len(selected_sites)} sites, you save **R {total_savings:,.0f}** over 3 weeks by eliminating **{current_buses - total_optimized_buses} unnecessary trips**.")
         
 # Footer
 st.markdown("---")
