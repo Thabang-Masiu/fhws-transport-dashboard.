@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # ============================================================
-# Data loading & PERMANENT SAVING logic
+# Data loading (READ-ONLY - Data is never modified on the server)
 # ============================================================
 @st.cache_data
 def load_data():
@@ -23,21 +23,17 @@ def load_data():
     return trips, costs
 
 trips, costs = load_data()
-
-def save_new_booking(new_data):
-    """Saves the new booking to the CSV so it is remembered forever."""
-    raw_trips = pd.read_csv("trips_by_department.csv")
-    updated_trips = pd.concat([raw_trips, new_data], ignore_index=True)
-    updated_trips.to_csv("trips_by_department.csv", index=False)
-    st.cache_data.clear()
-
 trips["month"] = trips["date"].dt.to_period("M").astype(str)
+
+# Initialize Private Session Memory for Bookings
+if "private_bookings" not in st.session_state:
+    st.session_state.private_bookings = pd.DataFrame()
 
 # ============================================================
 # Header & Sidebar
 # ============================================================
 st.title("🚌 FHWS Transport Management System")
-st.caption("Faculty of Health and Wellness Sciences · Permanent Operations Hub")
+st.caption("Faculty of Health and Wellness Sciences · Secure Operations Hub")
 
 st.sidebar.header("Filters")
 departments = ["All"] + sorted(trips["department"].dropna().unique().tolist())
@@ -50,8 +46,8 @@ if sel_dept != "All":
 # ============================================================
 # Tabs
 # ============================================================
-tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking, tab_history = st.tabs(
-    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "➕ Live Booking Engine", "📋 Booking History"]
+tab_overview, tab_consolidation, tab_costs, tab_bus, tab_nursing, tab_simulator, tab_booking = st.tabs(
+    ["📊 Overview", "🎯 Consolidation", "💰 Costs", "🚐 Bus Utilization", "🏥 Nursing Routes", "🤖 Auto-Planner", "🔒 Secure Booking Engine"]
 )
 
 # ---------------- TAB 1: OVERVIEW ----------------
@@ -129,10 +125,10 @@ with tab_simulator:
         st.dataframe(dispatch_df, use_container_width=True)
         st.download_button("📥 Download Dispatch Sheet", dispatch_df.to_csv(index=False).encode('utf-8'), "Dispatch_Plan.csv", "text/csv")
 
-# ---------------- TAB 7: LIVE BOOKING ENGINE ----------------
+# ---------------- TAB 7: SECURE BOOKING ENGINE ----------------
 with tab_booking:
-    st.subheader("➕ Live Booking Engine")
-    st.markdown("Use this form to log a **new transport request**. The system will instantly check if a bus is already going to that hospital on that day, saving the department money.")
+    st.subheader("🔒 Secure Booking Engine")
+    st.info("**Security Notice:** Bookings made here are stored in your browser's temporary secure memory. They are **NOT** saved to the public server. Download your records at the end of the session to save them to your private network.")
     
     with st.form("booking_form"):
         col1, col2 = st.columns(2)
@@ -145,7 +141,7 @@ with tab_booking:
             book_pickup = st.text_input("Pickup Time", "06:30")
             book_return = st.text_input("Return Time", "16:00")
             
-        submitted = st.form_submit_button("Check Availability & Book")
+        submitted = st.form_submit_button("Check Availability & Add to Session")
         
     if submitted:
         existing = trips[(trips["date"].dt.date == book_date) & (trips["site"] == book_site)]
@@ -158,69 +154,44 @@ with tab_booking:
             
             if available_seats >= book_students:
                 st.success(f"🎉 **GOOD NEWS:** There is already a bus going to {book_site} on {book_date} ({existing['department'].iloc[0]} department).")
-                st.info(f"The existing bus has **{available_seats} seats available**. Your {book_students} students can join this bus. **Cost of this booking: R 0** (Saving R 1,200).")
+                st.info(f"The existing bus has **{available_seats} seats available**. Your {book_students} students can join this bus. **Cost: R 0** (Saving R 1,200).")
             else:
                 st.warning(f"⚠️ A bus is already going to {book_site}, but it only has {available_seats} seats left. You will need to book an additional vehicle.")
         else:
             st.info(f"No existing transport found for {book_site} on {book_date}. A new vehicle must be dispatched.")
             
-        new_row = pd.DataFrame([{
-            "department": book_dept,
-            "date": pd.to_datetime(book_date),
-            "week": None,
-            "site": book_site,
-            "route_description": f"CPUT Bellville to {book_site}",
-            "num_students": book_students,
-            "pickup_time": book_pickup,
-            "collection_time": book_return,
-            "pickup_point": "CPUT Bellville Campus",
-            "bus_size": None,
-            "trips": 1,
-            "cost_per_unit": 1200 if existing.empty else 0,
-            "units": 1,
-            "total_cost": 1200 if existing.empty else 0,
-            "source_file": "live_system.csv",
-            "source_sheet": "form"
+        # Add to private session memory (NOT the public CSV)
+        new_booking = pd.DataFrame([{
+            "Date": book_date,
+            "Department": book_dept,
+            "Hospital": book_site,
+            "Students": book_students,
+            "Pickup": book_pickup,
+            "Return": book_return,
+            "Est_Cost": 1200 if existing.empty else 0
         }])
         
-        save_new_booking(new_row)
+        st.session_state.private_bookings = pd.concat([st.session_state.private_bookings, new_booking], ignore_index=True)
         st.balloons()
-        st.success("✅ **Booking Saved Successfully!** The dashboard metrics have been updated. Check the **📋 Booking History** tab to view your records.")
+        st.success("✅ **Booking added to your private session.** Scroll down to view or download your records.")
 
-# ---------------- TAB 8: BOOKING HISTORY ----------------
-with tab_history:
-    st.subheader("📋 Permanent Booking History")
-    st.markdown("This is a permanent log of all transport requests made through the Live Booking Engine.")
-    
-    # Filter ONLY for the live bookings we made using the system
-    live_bookings = trips[trips["source_file"] == "live_system.csv"].copy()
-    
-    if live_bookings.empty:
-        st.info("No live bookings have been made yet. Go to the 'Live Booking Engine' tab to make your first booking.")
-    else:
-        # Clean up the display
-        display_df = live_bookings[[
-            "date", "department", "site", "num_students", 
-            "pickup_time", "collection_time", "total_cost"
-        ]].sort_values("date", ascending=False)
+    # Show the private records
+    if not st.session_state.private_bookings.empty:
+        st.markdown("---")
+        st.subheader("📋 Your Session's Bookings (Private)")
+        st.dataframe(st.session_state.private_bookings, use_container_width=True)
         
-        # Format the date and cost columns
-        display_df["date"] = display_df["date"].dt.strftime('%Y-%m-%d')
-        display_df["total_cost"] = display_df["total_cost"].apply(lambda x: f"R {x:,.0f}" if pd.notna(x) else "R 0")
-        
-        st.dataframe(display_df, use_container_width=True)
-        
-        # Provide a download button for the records
-        csv = display_df.to_csv(index=False).encode('utf-8')
+        csv = st.session_state.private_bookings.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download Booking Records (CSV)",
+            label="📥 Download Secure Booking Records (CSV)",
             data=csv,
-            file_name=f"FHWS_Booking_Records_{datetime.now().strftime('%Y-%m-%d')}.csv",
+            file_name=f"FHWS_Private_Bookings_{datetime.now().strftime('%Y-%m-%d')}.csv",
             mime="text/csv",
         )
         
-        # Show a quick summary metric
-        st.metric("Total Live Bookings Made", len(display_df))
+        if st.button("Clear Session Records"):
+            st.session_state.private_bookings = pd.DataFrame()
+            st.rerun()
 
 # Footer
 st.markdown("---")
