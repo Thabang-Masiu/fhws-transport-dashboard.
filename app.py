@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 from pathlib import Path
 
 # ============================================================
@@ -63,15 +62,15 @@ with tab_overview:
     st.markdown("### Trips per Month by Department")
     monthly = filtered.groupby(["month", "department"], as_index=False).agg(
         trips=("date", "count"))
-    fig = px.line(monthly, x="month", y="trips", color="department", markers=True)
-    st.plotly_chart(fig, use_container_width=True)
+    
+    # Pivot for built-in bar chart
+    monthly_pivot = monthly.pivot(index="month", columns="department", values="trips").fillna(0)
+    st.bar_chart(monthly_pivot)
 
     st.markdown("### Top 15 Clinical Sites")
     top_sites = filtered.groupby("site", as_index=False).size().rename(
-        columns={"size": "trips"}).sort_values("trips", ascending=False).head(15)
-    fig = px.bar(top_sites, x="trips", y="site", orientation="h")
-    fig.update_layout(yaxis=dict(autorange="reversed"))
-    st.plotly_chart(fig, use_container_width=True)
+        columns={"size": "trips"}).sort_values("trips", ascending=True).head(15)
+    st.bar_chart(top_sites.set_index("site")["trips"])
 
 # ---------------- TAB 2: CONSOLIDATION ----------------
 with tab_consolidation:
@@ -107,20 +106,15 @@ with tab_costs:
     st.subheader("Cost Breakdown (AY2024)")
     costs_clean = costs.dropna(subset=["cost_per_unit", "total_cost"])
     
-    c1, c2 = st.columns(2)
-    with c1:
-        by_dept = costs_clean.groupby("department", as_index=False).agg(
-            total_cost=("total_cost", "sum"))
-        fig = px.pie(by_dept, names="department", values="total_cost", title="Cost by Department")
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with c2:
-        top_routes = costs_clean.groupby("route_description", as_index=False).agg(
-            total_cost=("total_cost", "sum")).sort_values("total_cost", ascending=False).head(10)
-        fig = px.bar(top_routes, x="total_cost", y="route_description", orientation="h",
-                     title="Top 10 Routes by Cost")
-        fig.update_layout(yaxis=dict(autorange="reversed"))
-        st.plotly_chart(fig, use_container_width=True)
+    by_dept = costs_clean.groupby("department", as_index=False).agg(
+        total_cost=("total_cost", "sum")).set_index("department")
+    st.markdown("### Total Cost by Department")
+    st.bar_chart(by_dept)
+
+    st.markdown("### Top 10 Expensive Routes")
+    top_routes = costs_clean.groupby("route_description", as_index=False).agg(
+        total_cost=("total_cost", "sum")).sort_values("total_cost", ascending=True).tail(10)
+    st.bar_chart(top_routes.set_index("route_description")["total_cost"])
 
     st.markdown("### Full Cost Table")
     st.dataframe(costs_clean, use_container_width=True)
@@ -140,8 +134,9 @@ with tab_bus:
     c3.metric("Day+Sites with ≤5 Students", f"{under_5} ({pct:.1f}%)")
 
     st.markdown("### Distribution of Students per Day-Site")
-    fig = px.histogram(student_load, x="students", nbins=30)
-    st.plotly_chart(fig, use_container_width=True)
+    # Built in histogram
+    hist_values = pd.cut(student_load['students'], bins=[0,2,5,10,15,20,25,30])
+    st.bar_chart(hist_values.value_counts().sort_index())
 
     st.info("**Insight:** If most trips carry fewer than 5 students, the faculty may be over-provisioning larger buses. Consider downshifting to 7-seaters where load permits.")
 
